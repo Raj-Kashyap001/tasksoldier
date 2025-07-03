@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum AccessLevel {
+  OWNER
+  MEMBER // default
+  VIEWER
+}
+
+model User {
+  id                 String            @id @default(cuid())
+  fullName           String
+  email              String            @unique
+  profilePictureUrl  String?
+  bio                String?
+  sessions           Session[]
+  workspaces         WorkspaceMember[]
+  comments           Comment[]
+  notifications      Notification[]
+  activityLogs       ActivityLog[]
+  currentWorkspaceId String?
+  currentWorkspace   Workspace?        @relation("CurrentWorkspace", fields: [currentWorkspaceId], references: [id], onDelete: SetNull)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@index([email])
+  @@index([currentWorkspaceId])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  expiresAt DateTime
+}
+
+model Workspace {
+  id           String            @id @default(cuid())
+  name         String
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  members      WorkspaceMember[]
+  projects     Project[]
+  currentUsers User[]            @relation("CurrentWorkspace")
+
+  @@unique([name])
+}
+
+model WorkspaceMember {
+  id          String      @id @default(cuid())
+  userId      String
+  workspaceId String
+  inviteCode  String      @default(uuid())
+  role        Role
+  accessLevel AccessLevel @default(MEMBER)
+  joinedAt    DateTime    @default(now())
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@index([inviteCode])
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  role         Role
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  dueDate     DateTime?
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tasks       Task[]
+
+  @@unique([name, workspaceId])
+}
+
+model Task {
+  id          String        @id @default(cuid())
+  taskName    String
+  taskSummary String?
+  status      TaskStatus
+  priority    TaskPriority
+  dueDate     DateTime?
+  projectId   String
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  comments    TaskComment[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([taskName, projectId])
+}
+
+model Comment {
+  id          String        @id @default(cuid())
+  content     String
+  createdAt   DateTime      @default(now())
+  createdById String?
+  createdBy   User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  taskLinks   TaskComment[]
+}
+
+model TaskComment {
+  id        String  @id @default(cuid())
+  taskId    String
+  commentId String
+  task      Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, commentId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  content   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  entityType String
+  entityId   String
+  timestamp  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
