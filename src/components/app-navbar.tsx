@@ -26,10 +26,10 @@ const AppNavbar = () => {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-4">
           <ToggleTheme />
-          <Link href="/api/v1/login">
+          <Link href="/auth/login">
             <Button variant="ghost">Login</Button>
           </Link>
-          <Link href="/api/v1/signup">
+          <Link href="/auth/signup">
             <Button>Sign Up</Button>
           </Link>
         </nav>
@@ -45,12 +45,12 @@ const AppNavbar = () => {
             <SheetContent side="right" className="w-[250px]">
               <div className="flex flex-col space-y-4 mt-4">
                 <ToggleTheme />
-                <Link href="/api/v1/login" onClick={() => setIsOpen(false)}>
+                <Link href="/auth/login" onClick={() => setIsOpen(false)}>
                   <Button variant="ghost" className="w-full justify-start">
                     Login
                   </Button>
                 </Link>
-                <Link href="/api/v1/signup" onClick={() => setIsOpen(false)}>
+                <Link href="/auth/signup" onClick={() => setIsOpen(false)}>
                   <Button className="w-full justify-start">Sign Up</Button>
                 </Link>
               </div>
