@@ -38,8 +38,10 @@ model User {
   fullName           String
   email              String            @unique
   profilePictureUrl  String?
+  password           String
   bio                String?
   sessions           Session[]
+  onboarded          Boolean           @default(false)
   workspaces         WorkspaceMember[]
   comments           Comment[]
   notifications      Notification[]
