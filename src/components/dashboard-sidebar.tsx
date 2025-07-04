@@ -36,7 +36,7 @@ const items = [
     icon: Briefcase,
   },
   {
-    title: "Tasks",
+    title: "My Tasks",
     url: "/dashboard/tasks",
     icon: ListTodo,
   },

@@ -42,7 +42,7 @@ export function RecentCommentsList() {
           <CardTitle>Recent Comments</CardTitle>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+          <Loader2 className="h-6 w-6 animate-spi" />
         </CardContent>
       </Card>
     );
@@ -65,13 +65,11 @@ export function RecentCommentsList() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-2xl font-bold">Recent Comments</CardTitle>
-        <MessageSquare className="h-6 w-6 text-gray-500" />
+        <MessageSquare className="h-6 w-" />
       </CardHeader>
       <CardContent>
         {comments.length === 0 ? (
-          <p className="text-center text-gray-500 py-4">
-            No recent comments found.
-          </p>
+          <p className="text-cente py-4">No recent comments found.</p>
         ) : (
           <div className="space-y-4">
             {comments.map((comment) => (
@@ -93,10 +91,10 @@ export function RecentCommentsList() {
                     </div>
                   )}
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold">
                       {comment.createdBy.fullName}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-x text-muted-foreground">
                       commented on{" "}
                       {/* You might want to link to the specific task */}
                       <Link
@@ -108,7 +106,7 @@ export function RecentCommentsList() {
                     </p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed mb-2">
+                <p className="text-sm  leading-relaxed mb-2">
                   {comment.content}
                 </p>
                 <p className="text-xs text-gray-400 text-right">

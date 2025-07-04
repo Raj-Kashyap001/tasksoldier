@@ -18,3 +18,16 @@ export interface RecentComment {
   task: CommentTask;
   createdBy: CommentUser;
 }
+
+// lib/types.ts
+export interface NewTask {
+  taskName: string;
+  taskSummary?: string;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
+  priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  dueDate?: string;
+  projectId: string;
+  assignedToId?: string;
+  assignedUserId?: string;
+  workspaceId?: string;
+}

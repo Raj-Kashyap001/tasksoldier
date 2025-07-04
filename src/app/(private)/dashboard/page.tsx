@@ -56,7 +56,7 @@ export default function DashboardPage() {
   console.log(members);
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <PageHeader
           title="Dashboard"
@@ -74,12 +74,12 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Card className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600">
+                  <CardTitle className="text-sm font-medium ">
                     Total Tasks
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="text-3xl font-bold text-gray-900">
+                  <div className="text-3xl font-bold ">
                     {stats?.totalTasks || 0}
                   </div>
                 </CardContent>
@@ -87,7 +87,7 @@ export default function DashboardPage() {
 
               <Card className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600">
+                  <CardTitle className="text-sm font-medium ">
                     Completed
                   </CardTitle>
                 </CardHeader>
@@ -100,7 +100,7 @@ export default function DashboardPage() {
 
               <Card className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600">
+                  <CardTitle className="text-sm font-medium ">
                     In Progress
                   </CardTitle>
                 </CardHeader>
@@ -113,7 +113,7 @@ export default function DashboardPage() {
 
               <Card className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600">
+                  <CardTitle className="text-sm font-medium ">
                     Open Tasks
                   </CardTitle>
                 </CardHeader>

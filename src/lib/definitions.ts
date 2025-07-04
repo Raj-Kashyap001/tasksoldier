@@ -23,5 +23,15 @@ export const updateUserSchema = z.object({
   profilePictureUrl: z.string().optional(),
 });
 
+export const taskSchema = z.object({
+  taskName: z.string().min(1),
+  taskSummary: z.string().optional(),
+  status: z.enum(["TODO", "IN_PROGRESS", "DONE"]),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
+  dueDate: z.string().optional(), // ISO date
+  projectId: z.cuid(),
+  assignedToId: z.cuid().optional(),
+});
+
 export type OnboardingData = z.infer<typeof onboardingSchema>;
 export type LoginData = z.infer<typeof loginSchema>;
