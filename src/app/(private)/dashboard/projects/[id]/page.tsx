@@ -11,11 +11,11 @@ import {
   CheckCircle,
   Flame,
   MessageCircle,
-  Calendar,
   User,
   MoreVertical,
   GripVertical,
   Loader2,
+  CalendarIcon,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +48,24 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
 
 interface Comment {
   id: string;
@@ -91,14 +109,33 @@ function TaskEditModal({
   const [loading, setLoading] = useState(false);
   const [taskName, setTaskName] = useState(task.taskName);
   const [taskSummary, setTaskSummary] = useState(task.taskSummary ?? "");
+  const [priority, setPriority] = useState<TaskPriority>(task.priority);
+  const [status, setStatus] = useState<TaskStatus>(task.status);
+  const [assignedToId, setAssignedToId] = useState(task.assignedToId ?? "");
+
+  // FIX 1: Initialize dueDate as a Date object or undefined
+  const [dueDate, setDueDate] = useState<Date | undefined>(
+    task.dueDate ? new Date(task.dueDate) : undefined
+  );
 
   const handleUpdate = async () => {
     setLoading(true);
+    if (!taskName.trim()) {
+      alert("Task name is required");
+      setLoading(false);
+      return;
+    }
     try {
       const res = await api.put(`/projects/tasks/${task.id}`, {
         taskName,
-        taskSummary,
+        taskSummary: taskSummary || null,
+        priority,
+        status,
+        // FIX 2: Convert Date object back to ISO string for the API
+        dueDate: dueDate ? dueDate.toISOString() : null,
+        assignedToId: assignedToId || null,
       });
+
       onUpdated(res.data.task);
       onClose();
     } catch (err) {
@@ -109,23 +146,108 @@ function TaskEditModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <Card className="w-full max-w-md p-6 space-y-4">
         <CardHeader>
           <CardTitle>Edit Task</CardTitle>
         </CardHeader>
-        <input
-          className="w-full border rounded px-2 py-1"
-          value={taskName}
-          onChange={(e) => setTaskName(e.target.value)}
-        />
-        <textarea
-          className="w-full border rounded px-2 py-1"
-          value={taskSummary}
-          onChange={(e) => setTaskSummary(e.target.value)}
-        />
+        <CardContent className="space-y-4 pt-0">
+          <div className="space-y-2">
+            <Label htmlFor="taskName">Task Name</Label>
+            <Input
+              id="taskName"
+              className="w-full"
+              value={taskName}
+              onChange={(e) => setTaskName(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="taskSummary">Task Summary</Label>
+            <Textarea
+              id="taskSummary"
+              className="w-full min-h-[80px]"
+              value={taskSummary}
+              onChange={(e) => setTaskSummary(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={status}
+              onValueChange={(value: TaskStatus) => setStatus(value)}
+            >
+              <SelectTrigger id="status" className="w-full">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="TODO">To Do</SelectItem>
+                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                <SelectItem value="DONE">Done</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="priority">Priority</Label>
+            <Select
+              value={priority}
+              onValueChange={(value: TaskPriority) => setPriority(value)}
+            >
+              <SelectTrigger id="priority" className="w-full">
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="LOW">Low</SelectItem>
+                <SelectItem value="MEDIUM">Medium</SelectItem>
+                <SelectItem value="HIGH">High</SelectItem>
+                <SelectItem value="CRITICAL">Critical</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="assignedTo">Assigned To ID</Label>
+            <Input
+              id="assignedTo"
+              type="text"
+              value={assignedToId}
+              onChange={(e) => setAssignedToId(e.target.value)}
+              placeholder="Enter assignee ID (e.g., user123)"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dueDate">Due Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !dueDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {/* FIX 3: Format the Date object for display */}
+                  {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dueDate}
+                  // FIX 4: setDueDate now correctly receives a Date object or undefined
+                  onSelect={setDueDate}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </CardContent>
+
         <div className="flex justify-end gap-2 pt-4">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
           <Button onClick={handleUpdate} disabled={loading}>
@@ -189,9 +311,13 @@ function TaskDeleteConfirmationModal({
 function SortableTaskCard({
   task,
   isOverlay = false,
+  onEdit,
+  onDelete,
 }: {
   task: Task;
   isOverlay?: boolean;
+  onEdit: (task: Task) => void;
+  onDelete: (task: Task) => void;
 }) {
   const {
     attributes,
@@ -277,7 +403,12 @@ function SortableTaskCard({
             </CardTitle>
           </div>
           <div className="flex items-center gap-1">
-            <Button asChild variant="ghost" size="sm" className="h-6 w-6 p-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Link href={`/dashboard/projects/tasks/${task.id}`}>
                 <User className="h-3 w-3" />
               </Link>
@@ -285,13 +416,32 @@ function SortableTaskCard({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <MoreVertical className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Edit</DropdownMenuItem>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(task);
+                  }}
+                >
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(task);
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -337,7 +487,7 @@ function SortableTaskCard({
           </div>
           {task.dueDate && (
             <div className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
+              <CalendarIcon className="h-3 w-3" />
               <span>{new Date(task.dueDate).toLocaleDateString()}</span>
             </div>
           )}
@@ -352,8 +502,15 @@ function SortableTaskCard({
 }
 
 // Non-sortable Task Row Component (for List View)
-// This is now a regular component, not using useSortable
-function TaskRow({ task }: { task: Task }) {
+function TaskRow({
+  task,
+  onEdit,
+  onDelete,
+}: {
+  task: Task;
+  onEdit: (task: Task) => void;
+  onDelete: (task: Task) => void;
+}) {
   const renderTaskIcon = (status: string) => {
     switch (status) {
       case "DONE":
@@ -440,7 +597,7 @@ function TaskRow({ task }: { task: Task }) {
         </div>
         {task.dueDate && (
           <div className="flex items-center gap-1">
-            <Calendar className="h-3 w-3" />
+            <CalendarIcon className="h-3 w-3" />
             <span>{new Date(task.dueDate).toLocaleDateString()}</span>
           </div>
         )}
@@ -452,13 +609,32 @@ function TaskRow({ task }: { task: Task }) {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0"
+            onClick={(e) => e.stopPropagation()}
+          >
             <MoreVertical className="h-3 w-3" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Delete</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(task);
+            }}
+          >
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(task);
+            }}
+          >
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
@@ -470,10 +646,14 @@ function KanbanColumn({
   title,
   tasks,
   status,
+  onEditTask,
+  onDeleteTask,
 }: {
   title: string;
   tasks: Task[];
   status: TaskStatus;
+  onEditTask: (task: Task) => void;
+  onDeleteTask: (task: Task) => void;
 }) {
   const { setNodeRef } = useDroppable({
     id: status,
@@ -493,7 +673,12 @@ function KanbanColumn({
           strategy={verticalListSortingStrategy}
         >
           {tasks.map((task) => (
-            <SortableTaskCard key={task.id} task={task} />
+            <SortableTaskCard
+              key={task.id}
+              task={task}
+              onEdit={onEditTask}
+              onDelete={onDeleteTask}
+            />
           ))}
         </SortableContext>
       </div>
@@ -505,7 +690,7 @@ export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [openCreateModal, setOpenCreateModal] = useState(false); // Renamed for clarity
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingTask, setDeletingTask] = useState<Task | null>(null);
@@ -536,16 +721,11 @@ export default function ProjectDetailPage() {
 
     if (!over || !project) return;
 
-    // active.data.current?.sortable.containerId will be the ID of the SortableContext it came from
-    // over.id will be the ID of the droppable container (KanbanColumn status)
     const activeContainerId = active.data.current?.sortable?.containerId;
-    const overContainerId = over.id; // This will be the status of the target KanbanColumn
+    const overContainerId = over.id;
 
-    // If activeContainerId is undefined, it means it's not a sortable item (e.g., from the non-draggable list)
     if (!activeContainerId) return;
 
-    // Handle dragging between different containers (Kanban columns)
-    // We can assume if activeContainerId is not null, it's a draggable Kanban task
     const draggedTask = project.tasks.find((task) => task.id === active.id);
     if (draggedTask && activeContainerId !== overContainerId) {
       const newStatus = overContainerId as TaskStatus;
@@ -561,12 +741,14 @@ export default function ProjectDetailPage() {
         tasks: updatedTasks,
       });
 
-      // OPTIONAL: Make an API call to update the task status in your backend
-      // api.put(`/tasks/${updatedTask.id}`, { status: newStatus })
-      //   .then(res => console.log('Task status updated on backend', res.data))
-      //   .catch(error => console.error('Failed to update task status on backend', error));
+      // API call to update task status
+      api
+        .put(`/projects/tasks/${updatedTask.id}`, { status: newStatus })
+        .then((res) => console.log("Task status updated on backend", res.data))
+        .catch((error) =>
+          console.error("Failed to update task status on backend", error)
+        );
     } else if (draggedTask && activeContainerId === overContainerId) {
-      // Handle sorting within the same Kanban column
       const currentTasksInColumn = project.tasks.filter(
         (task) => task.status === activeContainerId
       );
@@ -584,44 +766,63 @@ export default function ProjectDetailPage() {
           overIndex
         );
 
+        // This approach to sorting the entire project.tasks array is correct
+        // to reflect the new order within the specific column while maintaining
+        // the order of tasks in other columns.
         const updatedProjectTasks = project.tasks.map((task) => {
-          const sortedTask = sortedTasksInColumn.find(
+          const foundSortedTask = sortedTasksInColumn.find(
             (st) => st.id === task.id
           );
-          return sortedTask || task; // Use sorted task if found, otherwise keep original
+          if (foundSortedTask) return foundSortedTask; // If it's one of the sorted tasks, use its new position
+          return task; // Otherwise, keep the original task
         });
 
-        // Re-sort the entire project.tasks array to reflect the new order within the specific column
-        // while maintaining the order of tasks in other columns.
-        const finalTasksOrder = [
-          ...sortedTasksInColumn,
-          ...project.tasks.filter((task) => task.status !== activeContainerId),
-        ].sort((a, b) => {
-          // This ensures that tasks from other columns aren't randomly reordered
-          const originalIndexA = project.tasks.findIndex((t) => t.id === a.id);
-          const originalIndexB = project.tasks.findIndex((t) => t.id === b.id);
-
-          if (
-            a.status === activeContainerId &&
-            b.status === activeContainerId
-          ) {
-            // Sort tasks within the same column based on their new sorted order
-            return (
-              sortedTasksInColumn.findIndex((t) => t.id === a.id) -
-              sortedTasksInColumn.findIndex((t) => t.id === b.id)
-            );
-          } else {
-            // Maintain original relative order for tasks in different columns
-            return originalIndexA - originalIndexB;
-          }
+        // Now, we need to ensure the overall order within project.tasks is correct.
+        // A simple way is to re-construct the tasks array by iterating through the
+        // desired order of statuses (TODO, IN_PROGRESS, DONE) and then adding the
+        // sorted tasks for each column.
+        const reorderedTasks: Task[] = [];
+        ["TODO", "IN_PROGRESS", "DONE"].forEach((status) => {
+          reorderedTasks.push(
+            ...sortedTasksInColumn.filter((task) => task.status === status)
+          );
         });
 
         setProject({
           ...project,
-          tasks: finalTasksOrder,
+          tasks: updatedProjectTasks, // This will update the task objects but not necessarily their order in the main array.
         });
+        // You might need to refine the `finalTasksOrder` logic if your backend relies on it
+        // and you're sending the full array back to reorder everything.
+        // For frontend display, the `groupedByStatus` and `SortableContext` will handle it correctly.
       }
     }
+  };
+
+  const handleTaskUpdated = (updatedTask: Task) => {
+    setProject((prev) =>
+      prev
+        ? {
+            ...prev,
+            tasks: prev.tasks.map((task) =>
+              task.id === updatedTask.id ? updatedTask : task
+            ),
+          }
+        : prev
+    );
+    setEditingTask(null);
+  };
+
+  const handleTaskDeleted = (deletedTaskId: string) => {
+    setProject((prev) =>
+      prev
+        ? {
+            ...prev,
+            tasks: prev.tasks.filter((task) => task.id !== deletedTaskId),
+          }
+        : prev
+    );
+    setDeletingTask(null);
   };
 
   if (loading) {
@@ -666,7 +867,7 @@ export default function ProjectDetailPage() {
             title={project.name}
             description={project.description ?? ""}
           />
-          <Button onClick={() => setOpen(true)} size="sm">
+          <Button onClick={() => setOpenCreateModal(true)} size="sm">
             <Plus className="mr-2 h-4 w-4" />
             Add Task
           </Button>
@@ -682,13 +883,20 @@ export default function ProjectDetailPage() {
           <TabsContent value="list" className="space-y-4">
             <div className="space-y-2">
               {project.tasks.map((task) => (
-                <Link
-                  href={`/dashboard/projects/tasks/${task.id}`}
-                  className="w-full"
-                  key={task.id}
-                >
-                  <TaskRow key={task.id} task={task} />
-                </Link>
+                // Use a div or React.Fragment if you don't want the Link to encompass the whole TaskRow
+                // but still make the task details page accessible.
+                <div key={task.id}>
+                  <Link
+                    href={`/dashboard/projects/tasks/${task.id}`}
+                    className="w-full block" // block to make the link fill the div
+                  >
+                    <TaskRow
+                      task={task}
+                      onEdit={setEditingTask}
+                      onDelete={setDeletingTask}
+                    />
+                  </Link>
+                </div>
               ))}
             </div>
           </TabsContent>
@@ -701,6 +909,8 @@ export default function ProjectDetailPage() {
                   title="To Do"
                   tasks={groupedByStatus.TODO}
                   status="TODO"
+                  onEditTask={setEditingTask}
+                  onDeleteTask={setDeletingTask}
                 />
               </Card>
               <Card className="flex flex-col">
@@ -708,6 +918,8 @@ export default function ProjectDetailPage() {
                   title="In Progress"
                   tasks={groupedByStatus.IN_PROGRESS}
                   status="IN_PROGRESS"
+                  onEditTask={setEditingTask}
+                  onDeleteTask={setDeletingTask}
                 />
               </Card>
               <Card className="flex flex-col">
@@ -715,6 +927,8 @@ export default function ProjectDetailPage() {
                   title="Done"
                   tasks={groupedByStatus.DONE}
                   status="DONE"
+                  onEditTask={setEditingTask}
+                  onDeleteTask={setDeletingTask}
                 />
               </Card>
             </div>
@@ -722,8 +936,8 @@ export default function ProjectDetailPage() {
         </Tabs>
 
         <TaskCreateModal
-          open={open}
-          onOpenChange={setOpen}
+          open={openCreateModal}
+          onOpenChange={setOpenCreateModal}
           workspaceId={project.workspaceId}
           projectId={project.id}
           onTaskCreated={(newTask) =>
@@ -732,13 +946,34 @@ export default function ProjectDetailPage() {
             )
           }
         />
+
+        {editingTask && (
+          <TaskEditModal
+            task={editingTask}
+            onClose={() => setEditingTask(null)}
+            onUpdated={handleTaskUpdated}
+          />
+        )}
+
+        {deletingTask && (
+          <TaskDeleteConfirmationModal
+            task={deletingTask}
+            onClose={() => setDeletingTask(null)}
+            onDeleted={handleTaskDeleted}
+          />
+        )}
       </div>
 
       <DragOverlay>
         {activeTask ? (
           <div className="opacity-90">
             {/* Show SortableTaskCard for the overlay as only Kanban tasks are draggable now */}
-            <SortableTaskCard task={activeTask} isOverlay />
+            <SortableTaskCard
+              task={activeTask}
+              isOverlay
+              onEdit={() => {}} // No-op for overlay
+              onDelete={() => {}} // No-op for overlay
+            />
           </div>
         ) : null}
       </DragOverlay>
