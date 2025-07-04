@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "seed": "bun src/seed/index.ts",
     "start": "next start",
     "lint": "next lint"
   },
