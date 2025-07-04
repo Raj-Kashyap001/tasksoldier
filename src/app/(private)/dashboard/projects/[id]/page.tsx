@@ -58,7 +58,9 @@ import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -66,6 +68,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+
+interface WorkspaceMember {
+  id: string;
+  fullName: string;
+  userId: string;
+}
 
 interface Comment {
   id: string;
@@ -112,6 +120,14 @@ function TaskEditModal({
   const [priority, setPriority] = useState<TaskPriority>(task.priority);
   const [status, setStatus] = useState<TaskStatus>(task.status);
   const [assignedToId, setAssignedToId] = useState(task.assignedToId ?? "");
+  const [members, setMembers] = useState<WorkspaceMember[]>([]);
+
+  useEffect(() => {
+    api
+      .get("/workspace/members")
+      .then((res) => setMembers(res.data.members))
+      .catch(() => setMembers([]));
+  }, []);
 
   // FIX 1: Initialize dueDate as a Date object or undefined
   const [dueDate, setDueDate] = useState<Date | undefined>(
@@ -126,6 +142,14 @@ function TaskEditModal({
       return;
     }
     try {
+      console.log("Updating task with:", {
+        taskName,
+        taskSummary: taskSummary || null,
+        priority,
+        status,
+        dueDate: dueDate ? dueDate.toISOString() : null,
+        assignedToId: assignedToId || null,
+      });
       const res = await api.put(`/projects/tasks/${task.id}`, {
         taskName,
         taskSummary: taskSummary || null,
@@ -208,14 +232,28 @@ function TaskEditModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="assignedTo">Assigned To ID</Label>
-            <Input
-              id="assignedTo"
-              type="text"
-              value={assignedToId}
-              onChange={(e) => setAssignedToId(e.target.value)}
-              placeholder="Enter assignee ID (e.g., user123)"
-            />
+            <Label htmlFor="assignedTo">Assign To</Label>
+            <Select
+              value={assignedToId || "unassigned"}
+              onValueChange={(val) =>
+                setAssignedToId(val === "unassigned" ? "" : val)
+              }
+            >
+              <SelectTrigger id="assignedTo" className="w-full">
+                <SelectValue placeholder="Select assignee" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Team Members</SelectLabel>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {members.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.fullName}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

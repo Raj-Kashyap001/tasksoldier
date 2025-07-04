@@ -1,9 +1,7 @@
-// /api/v1/projects/tasks/[taskId]/route.ts
-
-import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
-import z from "zod/v4"; // Ensure you're using the correct import for z
 import { TaskPriority, TaskStatus } from "@/generated/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import z from "zod/v4";
 
 export async function GET(
   _: Request,
@@ -11,7 +9,12 @@ export async function GET(
 ) {
   const task = await db.task.findUnique({
     where: { id: params.taskId },
-    include: { comments: true },
+    include: {
+      comments: true,
+      assignedTo: {
+        include: { user: true }, // to get fullName
+      },
+    },
   });
 
   if (!task) {
@@ -28,34 +31,30 @@ export async function PUT(
   const body = await req.json();
 
   const schema = z.object({
-    taskName: z.string().min(1).optional(), // Make optional for partial updates
+    taskName: z.string().min(1).optional(),
     taskSummary: z.string().optional(),
-    status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).optional(), // Add status
-    priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(), // Add priority
+    status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).optional(),
+    priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
     dueDate: z.string().datetime().optional().nullable(),
     assignedToId: z.string().optional().nullable(),
   });
 
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    console.error("Invalid input for task update:", parsed.error); // Log error for debugging
     return new Response(
       JSON.stringify({ error: "Invalid input", details: parsed.error.issues }),
-      {
-        status: 400,
-      }
+      { status: 400 }
     );
   }
 
   const { taskName, taskSummary, status, priority, dueDate, assignedToId } =
     parsed.data;
 
-  // Only include fields that are present in the parsed data to allow partial updates
   const updateData: {
     taskName?: string;
     taskSummary?: string;
-    status?: TaskStatus; // Assuming TaskStatus is defined in your types
-    priority?: TaskPriority; // Assuming TaskPriority is defined in your types
+    status?: TaskStatus;
+    priority?: TaskPriority;
     dueDate?: string | null;
     assignedToId?: string | null;
   } = {};
@@ -67,12 +66,20 @@ export async function PUT(
   if (dueDate !== undefined) updateData.dueDate = dueDate;
   if (assignedToId !== undefined) updateData.assignedToId = assignedToId;
 
-  const task = await db.task.update({
-    where: { id: params.taskId },
-    data: updateData,
-  });
+  try {
+    const task = await db.task.update({
+      where: { id: params.taskId },
+      data: updateData,
+    });
 
-  return Response.json({ task });
+    return NextResponse.json({ task });
+  } catch (err) {
+    console.error("Update failed:", err);
+    return NextResponse.json(
+      { error: "Update failed", detail: err },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(
