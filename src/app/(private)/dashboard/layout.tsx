@@ -8,6 +8,7 @@ import { getAuthUser } from "@/lib/server/session";
 import { getUserWorkspaces } from "@/lib/server/workspace";
 import { Bell } from "lucide-react";
 import { cookies } from "next/headers";
+import { getUserStats } from "@/lib/server/user";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import Image from "next/image";
@@ -19,18 +20,19 @@ interface DashboardLayoutProps {
 export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
+  const user = await getAuthUser();
+  if (!user) return null;
+  const loggedIn = await isAuthenticated();
+  if (!loggedIn) redirect("/auth/login");
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
-  const loggedIn = await isAuthenticated();
-  const user = await getAuthUser();
-  if (!loggedIn && !user) redirect("/auth/login");
   const workspaces = await getUserWorkspaces();
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <DashboardSidebar workspaces={workspaces as Workspace[]} />
       <div className="w-full">
-        <nav className="flex w-full items-center justify-between  top-0 h-16 px-4 shadow z-10">
+        <nav className="flex w-full items-center justify-between sticky bg-primary-foreground top-0 h-16 px-4 shadow z-10">
           <div className="flex gap-2 items-center">
             <SidebarTrigger />
             {/* Logo */}

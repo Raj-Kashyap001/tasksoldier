@@ -63,13 +63,16 @@ export async function getAuthUser() {
           bio: true,
           onboarded: true,
           profilePictureUrl: true,
+          currentWorkspaceId: true,
           currentWorkspace: {
             select: {
+              id: true,
               name: true,
             },
           },
           workspaces: {
             select: {
+              id: true,
               role: true,
               accessLevel: true,
               workspace: {

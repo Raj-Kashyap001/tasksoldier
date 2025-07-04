@@ -33,7 +33,6 @@ export async function getUserWorkspaces() {
   const currentUser = await getAuthUser();
 
   if (!currentUser) {
-    // If no user is authenticated, return an empty array
     return [];
   }
 
