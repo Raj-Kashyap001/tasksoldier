@@ -45,7 +45,8 @@ export function EditUserDialog({ user, open, onClose }: EditUserDialogProps) {
         bio,
         profilePictureUrl,
       });
-      onClose();
+
+      window.location.reload();
     } catch (err: any) {
       setError(err?.response?.data?.message || "Update failed");
     } finally {

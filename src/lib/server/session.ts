@@ -61,6 +61,7 @@ export async function getAuthUser() {
           fullName: true,
           email: true,
           bio: true,
+          onboarded: true,
           profilePictureUrl: true,
           currentWorkspace: {
             select: {
