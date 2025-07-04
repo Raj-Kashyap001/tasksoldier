@@ -47,6 +47,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import Link from "next/link";
 
 interface Comment {
   id: string;
@@ -76,6 +77,112 @@ interface Project {
   createdAt: string;
   workspaceId: string;
   tasks: Task[];
+}
+
+function TaskEditModal({
+  task,
+  onClose,
+  onUpdated,
+}: {
+  task: Task;
+  onClose: () => void;
+  onUpdated: (updated: Task) => void;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [taskName, setTaskName] = useState(task.taskName);
+  const [taskSummary, setTaskSummary] = useState(task.taskSummary ?? "");
+
+  const handleUpdate = async () => {
+    setLoading(true);
+    try {
+      const res = await api.put(`/projects/tasks/${task.id}`, {
+        taskName,
+        taskSummary,
+      });
+      onUpdated(res.data.task);
+      onClose();
+    } catch (err) {
+      console.error("Failed to update task", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <Card className="w-full max-w-md p-6 space-y-4">
+        <CardHeader>
+          <CardTitle>Edit Task</CardTitle>
+        </CardHeader>
+        <input
+          className="w-full border rounded px-2 py-1"
+          value={taskName}
+          onChange={(e) => setTaskName(e.target.value)}
+        />
+        <textarea
+          className="w-full border rounded px-2 py-1"
+          value={taskSummary}
+          onChange={(e) => setTaskSummary(e.target.value)}
+        />
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} disabled={loading}>
+            {loading ? "Updating..." : "Update"}
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function TaskDeleteConfirmationModal({
+  task,
+  onClose,
+  onDeleted,
+}: {
+  task: Task;
+  onClose: () => void;
+  onDeleted: (id: string) => void;
+}) {
+  const [loading, setLoading] = useState(false);
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await api.delete(`/projects/tasks/${task.id}`);
+      onDeleted(task.id);
+      onClose();
+    } catch (err) {
+      console.error("Failed to delete task", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <Card className="w-full max-w-sm p-6 space-y-4">
+        <CardHeader>
+          <CardTitle>Delete Task</CardTitle>
+        </CardHeader>
+        <p>Are you sure you want to delete this task?</p>
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={loading}
+          >
+            {loading ? "Deleting..." : "Delete"}
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
 }
 
 // Sortable Task Card Component (for Kanban)
@@ -170,6 +277,12 @@ function SortableTaskCard({
             </CardTitle>
           </div>
           <div className="flex items-center gap-1">
+            <Button asChild variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <Link href={`/dashboard/projects/tasks/${task.id}`}>
+                <User className="h-3 w-3" />
+              </Link>
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
@@ -181,12 +294,14 @@ function SortableTaskCard({
                 <DropdownMenuItem>Delete</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
             <Button
+              ref={setNodeRef}
+              {...attributes}
+              {...listeners}
               variant="ghost"
               size="sm"
               className="h-6 w-6 p-0 cursor-grab active:cursor-grabbing"
-              {...attributes}
-              {...listeners}
             >
               <GripVertical className="h-3 w-3" />
             </Button>
@@ -392,6 +507,8 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [deletingTask, setDeletingTask] = useState<Task | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -565,7 +682,13 @@ export default function ProjectDetailPage() {
           <TabsContent value="list" className="space-y-4">
             <div className="space-y-2">
               {project.tasks.map((task) => (
-                <TaskRow key={task.id} task={task} />
+                <Link
+                  href={`/dashboard/projects/tasks/${task.id}`}
+                  className="w-full"
+                  key={task.id}
+                >
+                  <TaskRow key={task.id} task={task} />
+                </Link>
               ))}
             </div>
           </TabsContent>
