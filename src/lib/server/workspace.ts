@@ -1,15 +1,9 @@
-import { AccessLevel, Role } from "@/generated/prisma";
+import { AccessLevel, Role, Workspace } from "@/generated/prisma";
 import { db } from "../prisma";
+import { cookies } from "next/headers";
+import { getAuthUser } from "./session";
 
 export async function createWorkspace(userId: string, workspaceName: string) {
-  const existing = await db.workspaceMember.findMany({
-    where: { userId },
-  });
-
-  if (existing.length > 0) {
-    throw new Error("User already has a workspace.");
-  }
-
   return await db.$transaction(async (tx) => {
     const workspace = await tx.workspace.create({
       data: {
@@ -36,7 +30,40 @@ export async function createWorkspace(userId: string, workspaceName: string) {
   });
 }
 
-export interface Workspace {
-  id: string;
-  name: string;
+export async function getUserWorkspaces() {
+  const currentUser = await getAuthUser();
+
+  if (!currentUser) {
+    // If no user is authenticated, return an empty array
+    return [];
+  }
+
+  try {
+    const workspaces = await db.workspace.findMany({
+      where: {
+        // Find workspaces where there is a member record
+        // associated with the current user's ID.
+        members: {
+          some: {
+            userId: currentUser.id,
+          },
+        },
+      },
+      // Select only the fields needed for the Workspace interface
+      select: {
+        id: true,
+        name: true,
+      },
+      // You might want to order them, e.g., by name or creation date
+      orderBy: {
+        name: "asc",
+      },
+    });
+    return workspaces;
+  } catch (error) {
+    console.error("Failed to fetch user workspaces:", error);
+    // Depending on your error handling strategy, you might re-throw the error
+    // or return an empty array. Returning an empty array is safer for UI display.
+    return [];
+  }
 }

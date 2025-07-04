@@ -31,7 +31,16 @@ export async function getAuthUser() {
 
   const session = await db.session.findUnique({
     where: { id: sessionToken },
-    include: { user: true },
+    include: {
+      user: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          profilePictureUrl: true,
+        },
+      },
+    },
   });
 
   if (!session || session.expiresAt < new Date()) return null;

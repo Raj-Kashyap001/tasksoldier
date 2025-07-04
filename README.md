@@ -4,4 +4,8 @@
 
 Simple task manager
 
-[ ] Do the check in dashboad of authentication
+[x] Do the check in dashboad of authentication
+
+[x] add option to create workspace
+
+[ ] make logout and accout page

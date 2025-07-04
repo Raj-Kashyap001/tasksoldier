@@ -35,8 +35,8 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const ok = await isAuthenticated();
-      if (!ok) {
+      const loggedIn = await isAuthenticated();
+      if (!loggedIn) {
         setAuthError("You must be logged in to access onboarding.");
         router.replace("/auth/login");
       }
