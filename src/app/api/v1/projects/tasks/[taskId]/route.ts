@@ -12,7 +12,15 @@ export async function GET(
     include: {
       comments: true,
       assignedTo: {
-        include: { user: true }, // to get fullName
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              profilePictureUrl: true,
+            },
+          },
+        },
       },
     },
   });
