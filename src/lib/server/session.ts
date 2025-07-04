@@ -60,7 +60,24 @@ export async function getAuthUser() {
           id: true,
           fullName: true,
           email: true,
+          bio: true,
           profilePictureUrl: true,
+          currentWorkspace: {
+            select: {
+              name: true,
+            },
+          },
+          workspaces: {
+            select: {
+              role: true,
+              accessLevel: true,
+              workspace: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
         },
       },
     },

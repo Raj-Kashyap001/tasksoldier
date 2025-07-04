@@ -12,6 +12,7 @@ import {
 } from "./ui/dropdown-menu";
 import { useState } from "react";
 import { LogoutDialog } from "./logout-overlay";
+import Link from "next/link";
 
 interface UserProfileDropdownProps {
   user: {
@@ -64,7 +65,7 @@ const UserProfileDropdown = ({ user }: UserProfileDropdownProps) => {
           <DropdownMenuGroup>
             <DropdownMenuItem>
               <BadgeCheck />
-              Account
+              <Link href="/dashboard/user-profile">Account</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Bell />

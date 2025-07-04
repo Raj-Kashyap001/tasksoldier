@@ -17,5 +17,11 @@ export const onboardingSchema = z.object({
     .min(2, "Workspace Name must be atleast 2 character long"),
 });
 
+export const updateUserSchema = z.object({
+  fullName: z.string().min(2).optional(),
+  bio: z.string().optional(),
+  profilePictureUrl: z.string().optional(),
+});
+
 export type OnboardingData = z.infer<typeof onboardingSchema>;
 export type LoginData = z.infer<typeof loginSchema>;
