@@ -1,42 +1,72 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { z } from "zod/v4";
+import { signupSchema } from "@/lib/definitions";
+import { api } from "@/lib/axios";
 import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { api } from "@/lib/axios";
-import { redirect } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { HttpStatus } from "@/lib/enums";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+  });
+
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
     setErrorMessage(null);
-    const res = await api.post("/signup", {
-      fullName,
-      email,
-      password,
-    });
-    if (res.status !== 201) {
-      setErrorMessage("Failed to create user please try again!");
+    setLoading(true);
+
+    // Zod validation
+    const parsed = signupSchema.safeParse(formData);
+    if (!parsed.success) {
+      const validationError = z.prettifyError(parsed.error);
+      console.log(validationError);
+      setErrorMessage(validationError || "Invalid input try again!");
       setLoading(false);
-    } else {
+      return;
+    }
+
+    try {
+      const res = await api.post("/auth/signup", formData);
+
+      if (res.status === HttpStatus.CREATED) {
+        router.push("/onboarding");
+      } else {
+        setErrorMessage("Unexpected response from server");
+      }
+    } catch (err: any) {
+      if (err?.response?.status === HttpStatus.CONFLICT) {
+        setErrorMessage("User with this email already exists.");
+      } else {
+        const message =
+          err?.response?.data?.message || "Something went wrong. Try again.";
+        setErrorMessage(message);
+      }
       setLoading(false);
-      console.log("Sign Up Success!");
-      redirect("/onboarding");
     }
   }
 
@@ -56,14 +86,11 @@ export function SignupForm({
           TaskSoldier
         </Link>
       </div>
+
+      {/* Form Card */}
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form
-            className="p-6 md:p-8"
-            onSubmit={(e) => {
-              handleSubmit(e);
-            }}
-          >
+          <form className="p-6 md:p-8" onSubmit={handleSubmit} noValidate>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Create your account</h1>
@@ -71,50 +98,58 @@ export function SignupForm({
                   Start managing your team with TaskSoldier
                 </p>
               </div>
+
               <div className="grid gap-3">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="fullName">Full Name</Label>
                 <Input
-                  id="name"
-                  onChange={(e) => setFullName(e.target.value)}
+                  id="fullName"
                   type="text"
+                  value={formData.fullName}
+                  onChange={handleChange}
                   required
-                  value={fullName}
                 />
               </div>
+
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
                 <Input
-                  onChange={(e) => setEmail(e.target.value)}
                   id="email"
                   type="email"
-                  value={email}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                 />
               </div>
+
               <div className="grid gap-3">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
-                  onChange={(e) => setPassword(e.target.value)}
                   type="password"
-                  min={8}
-                  value={password}
+                  value={formData.password}
+                  onChange={handleChange}
                   required
+                  minLength={6}
                 />
               </div>
+
               {errorMessage && (
-                <p className="text-red-400 text-center"> {errorMessage} </p>
+                <p className="text-red-500 text-center text-sm">
+                  {errorMessage}
+                </p>
               )}
-              <Button type="submit" className="w-full">
+
+              <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? (
-                  <span className="flex gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" /> Please
-                    Wait...
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Please wait...
                   </span>
                 ) : (
                   "Sign Up"
                 )}
               </Button>
+
               <div className="text-center text-sm">
                 Already have an account?{" "}
                 <Link
@@ -126,6 +161,7 @@ export function SignupForm({
               </div>
             </div>
           </form>
+
           <div className="bg-muted relative hidden md:block">
             <img
               src="/signup-cover-image.webp"
@@ -135,7 +171,9 @@ export function SignupForm({
           </div>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+
+      {/* Legal */}
+      <div className="text-muted-foreground text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4 *:[a]:hover:text-primary">
         By continuing, you agree to our <a href="#">Terms of Service</a> and{" "}
         <a href="#">Privacy Policy</a>.
       </div>

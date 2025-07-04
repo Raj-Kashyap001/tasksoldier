@@ -6,6 +6,11 @@ export const signupSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+export const loginSchema = z.object({
+  email: z.email("Invalid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 export const onboardingSchema = z.object({
   workspaceName: z
     .string()
@@ -13,3 +18,4 @@ export const onboardingSchema = z.object({
 });
 
 export type OnboardingData = z.infer<typeof onboardingSchema>;
+export type LoginData = z.infer<typeof loginSchema>;

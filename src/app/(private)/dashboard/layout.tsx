@@ -1,16 +1,16 @@
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { ToggleTheme } from "@/components/toggle-theme";
-import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import UserProfileDropdown from "@/components/user-profile-dropdown";
 import { Workspace } from "@/generated/prisma/client";
 import { isAuthenticated } from "@/lib/server/auth";
 import { getAuthUser } from "@/lib/server/session";
 import { getUserWorkspaces } from "@/lib/server/workspace";
-import { Avatar } from "@radix-ui/react-avatar";
-import { Bell, User2 } from "lucide-react";
+import { Bell } from "lucide-react";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
 interface DashboardLayoutProps {
   children: Readonly<React.ReactNode>;
@@ -33,7 +33,13 @@ export default async function DashboardLayout({
         <nav className="flex w-full items-center justify-between  top-0 h-16 px-4 shadow z-10">
           <div className="flex gap-2 items-center">
             <SidebarTrigger />
-            Tasksoldier
+            {/* Logo */}
+            <Link href="/" className="flex items-center space-x-2">
+              <Image src="/logo.svg" alt="Logo" width={32} height={32} />
+              <span className="font-semibold text-lg text-foreground">
+                Tasksoldier
+              </span>
+            </Link>
           </div>
           <div className="flex gap-4 items-center">
             <ToggleTheme />

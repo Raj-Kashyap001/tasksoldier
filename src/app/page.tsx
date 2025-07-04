@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/card";
 import AppNavbar from "@/components/app-navbar";
 import AppFooter from "@/components/app-footer";
+import { isAuthenticated } from "@/lib/server/auth";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const loggedIn = await isAuthenticated();
   return (
     <>
       <AppNavbar />
@@ -34,7 +36,9 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link href="/dashboard">
-              <Button className="px-6 py-4 text-base">Get Started</Button>
+              <Button className="px-6 py-4 text-base">
+                {loggedIn ? "Go to Dashboad" : "Get Started"}
+              </Button>
             </Link>
             <Link href="/about">
               <Button variant="outline" className="px-6 py-4 text-base">

@@ -24,6 +24,29 @@ export async function createSession(userId: string) {
   return token;
 }
 
+export async function destroySession() {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("session")?.value;
+
+  if (sessionToken) {
+    // Delete session from the database
+    await db.session.delete({
+      where: { id: sessionToken },
+    });
+
+    // Clear cookie on client
+    cookieStore.set("session", "", {
+      httpOnly: true,
+      path: "/",
+      sameSite: "lax",
+      maxAge: 0, // Immediately expire
+      secure: process.env.NODE_ENV === "production",
+    });
+    return true;
+  }
+  return false;
+}
+
 export async function getAuthUser() {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session")?.value;

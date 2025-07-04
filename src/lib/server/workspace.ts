@@ -1,6 +1,5 @@
 import { AccessLevel, Role, Workspace } from "@/generated/prisma";
 import { db } from "../prisma";
-import { cookies } from "next/headers";
 import { getAuthUser } from "./session";
 
 export async function createWorkspace(userId: string, workspaceName: string) {

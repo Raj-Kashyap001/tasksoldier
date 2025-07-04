@@ -59,7 +59,7 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Teams
+              Available Workspaces
             </DropdownMenuLabel>
             {workspaces.map((workspace, index) => (
               <DropdownMenuItem

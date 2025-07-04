@@ -1,13 +1,6 @@
 "use client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  ChevronsUpDown,
-  Sparkles,
-  BadgeCheck,
-  CreditCard,
-  Bell,
-  LogOut,
-} from "lucide-react";
+import { BadgeCheck, Bell, LogOut, Users2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useState } from "react";
+import { LogoutDialog } from "./logout-overlay";
 
 interface UserProfileDropdownProps {
   user: {
@@ -27,6 +22,7 @@ interface UserProfileDropdownProps {
 }
 
 const UserProfileDropdown = ({ user }: UserProfileDropdownProps) => {
+  const [logoutOpen, setLogoutOpen] = useState(false);
   return (
     <div>
       <DropdownMenu>
@@ -75,13 +71,24 @@ const UserProfileDropdown = ({ user }: UserProfileDropdownProps) => {
               Notifications
             </DropdownMenuItem>
           </DropdownMenuGroup>
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <Users2 />
+              Members
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">
-            <LogOut />
+
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => setLogoutOpen(true)}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
             Log out
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <LogoutDialog open={logoutOpen} onClose={() => setLogoutOpen(false)} />
     </div>
   );
 };

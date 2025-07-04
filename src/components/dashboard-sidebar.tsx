@@ -1,5 +1,11 @@
 "use client";
-import { Briefcase, LayoutDashboard, ListTodo, Settings } from "lucide-react";
+import {
+  Briefcase,
+  LayoutDashboard,
+  ListTodo,
+  Settings,
+  Users2,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -26,13 +32,18 @@ const items = [
   },
   {
     title: "Project",
-    url: "/dashboard/project",
+    url: "/dashboard/projects",
     icon: Briefcase,
   },
   {
     title: "Tasks",
-    url: "/dashboard/task",
+    url: "/dashboard/tasks",
     icon: ListTodo,
+  },
+  {
+    title: "Members",
+    url: "/dashboard/members",
+    icon: Users2,
   },
   {
     title: "Settings",
@@ -61,7 +72,11 @@ export function DashboardSidebar({ workspaces }: DashboardSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname.includes(item.url)}
+                    isActive={
+                      pathname === item.url ||
+                      (item.url !== "/dashboard" &&
+                        pathname.startsWith(`${item.url}/`))
+                    }
                   >
                     <a href={item.url}>
                       <item.icon />
