@@ -50,6 +50,7 @@ model User {
   currentWorkspace   Workspace?        @relation("CurrentWorkspace", fields: [currentWorkspaceId], references: [id], onDelete: SetNull)
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
+  invitesSent        Invite[]          @relation("InvitedByUser") // New line: Define the relation on the User side
 
   @@index([email])
   @@index([currentWorkspaceId])
@@ -155,6 +156,7 @@ model Invite {
   token       String   @unique
   workspaceId String
   invitedById String
+  invitedBy   User     @relation("InvitedByUser", fields: [invitedById], references: [id], onDelete: Cascade) // Modified: Add relation and onDelete
   role        Role
   createdAt   DateTime @default(now())
 }

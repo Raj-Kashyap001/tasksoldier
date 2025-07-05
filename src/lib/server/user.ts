@@ -1,5 +1,6 @@
+import { User } from "@/generated/prisma";
 import { db } from "@/lib/prisma";
-import { subDays } from "date-fns";
+import { api } from "@/lib/axios";
 
 interface UpdateUserInput {
   fullName?: string;
@@ -76,4 +77,42 @@ export async function getUserStats(userId: string) {
       { label: "Projects", count: projectCount },
     ],
   };
+}
+
+// Other user-related functions...
+
+/**
+ * Updates the current workspace for a user.
+ * @param userId - The ID of the user.
+ * @param workspaceId - The ID of the new workspace.
+ * @returns The updated user object.
+ */
+export async function updateUserCurrentWorkspace(
+  userId: string,
+  workspaceId: string
+): Promise<User> {
+  try {
+    const updatedUser = await db.user.update({
+      where: { id: userId },
+      data: { currentWorkspaceId: workspaceId },
+    });
+    return updatedUser;
+  } catch (error) {
+    console.error("Failed to update current workspace:", error);
+    throw new Error("Could not update user's current workspace.");
+  }
+}
+
+import z from "zod/v4";
+
+const settingsSchema = z.object({
+  name: z.string().min(2, "Name is too short"),
+  email: z.email("Invalid email address"),
+});
+
+type SettingsFormValues = z.infer<typeof settingsSchema>;
+
+export async function updateUserSettings(data: SettingsFormValues) {
+  const res = await api.patch("/api/v1/user/update", data);
+  return res.data;
 }

@@ -1,6 +1,7 @@
 import { db } from "@/lib/prisma";
 import { generateSessionToken } from "../utils";
 import { cookies } from "next/headers";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export async function createSession(userId: string) {
   const token = generateSessionToken();
@@ -24,24 +25,28 @@ export async function createSession(userId: string) {
   return token;
 }
 
-export async function destroySession() {
+export async function expireSessionCookie() {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("session")?.value;
+  cookieStore.set("session", "", {
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    maxAge: 0, // Immediately expire
+    secure: process.env.NODE_ENV === "production",
+  });
+}
+
+export async function destroyCurrentSession() {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session")?.value;
 
   if (sessionToken) {
-    // Delete session from the database
     await db.session.delete({
       where: { id: sessionToken },
     });
 
-    // Clear cookie on client
-    cookieStore.set("session", "", {
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-      maxAge: 0, // Immediately expire
-      secure: process.env.NODE_ENV === "production",
-    });
+    expireSessionCookie();
     return true;
   }
   return false;
