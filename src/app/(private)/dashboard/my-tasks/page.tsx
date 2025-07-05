@@ -69,6 +69,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { TaskCreateModal } from "@/components/task-create-model";
 
 // === TYPE DEFINITIONS ===
 type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
@@ -275,7 +276,7 @@ export default function MyTaskPage() {
     <div className="p-6 space-y-6">
       <PageHeader title="My Tasks" description="All tasks assigned to you" />
 
-      <Tabs defaultValue="kanban">
+      <Tabs defaultValue="list">
         <TabsList className="grid grid-cols-2 w-fit">
           <TabsTrigger value="list">List View</TabsTrigger>
           <TabsTrigger value="kanban">Kanban Board</TabsTrigger>
