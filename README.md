@@ -29,8 +29,8 @@
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/tasksoldier.git
-cd tasksoldier
+git clone https://github.com/your-username/Tasksoldier.git
+cd Tasksoldier
 ```
 
 ### 2. Install dependencies

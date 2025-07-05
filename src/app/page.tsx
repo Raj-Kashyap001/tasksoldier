@@ -21,7 +21,7 @@ export default async function HomePage() {
         {/* Logo */}
         <Image
           src="/logo.svg"
-          alt="TaskSoldier Logo"
+          alt="Tasksoldier Logo"
           width={64}
           height={64}
           className="mb-6"
@@ -40,9 +40,9 @@ export default async function HomePage() {
                 {loggedIn ? "Go to Dashboad" : "Get Started"}
               </Button>
             </Link>
-            <Link href="/about">
+            <Link href="https://github.com/Raj-Kashyap001/tasksoldier">
               <Button variant="outline" className="px-6 py-4 text-base">
-                Learn More
+                View Source
               </Button>
             </Link>
           </div>

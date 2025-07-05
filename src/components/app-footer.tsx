@@ -8,7 +8,7 @@ export default function AppFooter() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
         {/* Logo & Description */}
         <div className="space-y-2">
-          <h2 className="text-xl font-semibold">TaskSoldier</h2>
+          <h2 className="text-xl font-semibold">Tasksoldier</h2>
           <p className="text-sm text-muted-foreground">
             Organize your team and your tasks — with ease, clarity, and speed.
           </p>
@@ -32,17 +32,12 @@ export default function AppFooter() {
             </li>
             <li>
               <Link
-                href="https://github.com/"
+                href="https://github.com/Raj-Kashyap001/Tasksoldier"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:underline"
               >
                 GitHub
-              </Link>
-            </li>
-            <li>
-              <Link href="/docs" className="hover:underline">
-                Docs
               </Link>
             </li>
           </ul>
@@ -55,7 +50,7 @@ export default function AppFooter() {
           </h3>
           <ul className="space-y-1 text-sm">
             <li>
-              <Link href="/privacy" className="hover:underline">
+              <Link href="/privacy-policy" className="hover:underline">
                 Privacy Policy
               </Link>
             </li>
@@ -75,7 +70,7 @@ export default function AppFooter() {
 
       {/* Bottom Bar */}
       <div className="mt-10 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} TaskSoldier. All rights reserved.
+        © {new Date().getFullYear()} Tasksoldier. All rights reserved.
       </div>
     </footer>
   );

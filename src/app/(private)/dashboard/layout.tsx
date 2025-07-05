@@ -35,7 +35,7 @@ export default async function DashboardLayout({
           <div className="flex gap-2 items-center">
             <SidebarTrigger />
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/dashboard" className="flex items-center space-x-2">
               <Image src="/logo.svg" alt="Logo" width={32} height={32} />
               <span className="font-semibold text-lg text-foreground">
                 Tasksoldier

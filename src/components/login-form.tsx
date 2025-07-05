@@ -71,14 +71,14 @@ export function LoginForm({
       <div className="flex items-center justify-center gap-2 mb-4">
         <img
           src="/logo.svg"
-          alt="TaskSoldier Logo"
+          alt="Tasksoldier Logo"
           className="h-8 w-8 dark:brightness-200"
         />
         <Link
           href={"/"}
           className="text-2xl font-semibold tracking-tight text-foreground"
         >
-          TaskSoldier
+          Tasksoldier
         </Link>
       </div>
 

@@ -75,14 +75,14 @@ export function SignupForm({
       <div className="flex items-center justify-center gap-2 mb-4">
         <img
           src="/logo.svg"
-          alt="TaskSoldier Logo"
+          alt="Tasksoldier Logo"
           className="h-8 w-8 dark:brightness-200"
         />
         <Link
           href={"/"}
           className="text-2xl font-semibold tracking-tight text-foreground"
         >
-          TaskSoldier
+          Tasksoldier
         </Link>
       </div>
 
@@ -94,7 +94,7 @@ export function SignupForm({
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Create your account</h1>
                 <p className="text-muted-foreground text-balance">
-                  Start managing your team with TaskSoldier
+                  Start managing your team with Tasksoldier
                 </p>
               </div>
 

@@ -6,6 +6,7 @@ import { api } from "@/lib/axios";
 import { PageHeader } from "@/components/page-header";
 import { DataTableMembers } from "@/components/members-table";
 import { RecentCommentsList } from "@/components/recent-comments-list";
+import { TaskPieChart } from "@/components/task-pie-chart";
 
 interface Stats {
   totalTasks: number;
@@ -145,12 +146,11 @@ export default function DashboardPage() {
                     <CardTitle>Task Distribution</CardTitle>
                   </CardHeader>
                   <CardContent className="flex-1 flex items-center justify-center">
-                    {/* <StatsPieChart
+                    <TaskPieChart
                       completed={stats?.completedTasks ?? 0}
                       inProgress={stats?.inProgressTasks ?? 0}
-                    /> */}
-
-                    {/* A Pie chart here */}
+                      total={stats?.totalTasks ?? 0}
+                    />
                   </CardContent>
                 </Card>
               </div>
