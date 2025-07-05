@@ -210,10 +210,16 @@ export default function TaskDetailPage() {
 
           <div className="text-sm text-muted-foreground space-y-2">
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Assigned to:{" "}
-              {task.assignedTo?.user?.fullName || (
-                <span className="italic">Unassigned</span>
+              {task.assignedTo?.user?.fullName && (
+                <div className="flex items-center gap-2">
+                  <Avatar>
+                    <AvatarImage src={task.assignedTo.user.profilePictureUrl} />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
+                  Assigned to: {task.assignedTo.user.fullName}
+                </div>
               )}
             </div>
             <div className="flex items-center gap-2">

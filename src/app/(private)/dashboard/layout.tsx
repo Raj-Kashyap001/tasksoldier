@@ -8,7 +8,6 @@ import { getAuthUser } from "@/lib/server/session";
 import { getUserWorkspaces } from "@/lib/server/workspace";
 import { Bell } from "lucide-react";
 import { cookies } from "next/headers";
-import { getUserStats } from "@/lib/server/user";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import Image from "next/image";
@@ -21,9 +20,9 @@ export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
   const user = await getAuthUser();
-  if (!user) return null;
   const loggedIn = await isAuthenticated();
   if (!loggedIn) redirect("/auth/login");
+  if (!user) return null;
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
   const workspaces = await getUserWorkspaces();

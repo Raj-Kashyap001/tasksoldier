@@ -81,25 +81,30 @@ export async function POST(req: Request) {
       priority,
       dueDate,
       projectId,
-      assignedUserId, // 👈 from frontend (User.id)
+      assignedUserId, // 👈 from frontend (User.id) or undefined for 'unassigned'
       workspaceId, // 👈 should be passed too
     } = body;
 
-    // 🔍 Look up the WorkspaceMember based on userId + workspaceId
-    const member = await db.workspaceMember.findUnique({
-      where: {
-        userId_workspaceId: {
-          userId: assignedUserId,
-          workspaceId: workspaceId,
-        },
-      },
-    });
+    let assignedToMemberId: string | null = null;
 
-    if (!member) {
-      return NextResponse.json(
-        { error: "Assigned user is not a member of this workspace." },
-        { status: 400 }
-      );
+    // Only look up WorkspaceMember if assignedUserId is provided
+    if (assignedUserId) {
+      const member = await db.workspaceMember.findUnique({
+        where: {
+          userId_workspaceId: {
+            userId: assignedUserId,
+            workspaceId: workspaceId,
+          },
+        },
+      });
+
+      if (!member) {
+        return NextResponse.json(
+          { error: "Assigned user is not a member of this workspace." },
+          { status: 400 }
+        );
+      }
+      assignedToMemberId = member.id;
     }
 
     const task = await db.task.create({
@@ -110,7 +115,7 @@ export async function POST(req: Request) {
         priority,
         dueDate: dueDate ? new Date(dueDate) : undefined,
         projectId,
-        assignedToId: member.id, // ✅ use WorkspaceMember.id
+        assignedToId: assignedToMemberId, // ✅ Use the member ID or null
       },
     });
 

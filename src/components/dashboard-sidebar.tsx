@@ -30,15 +30,16 @@ const items = [
     url: "/dashboard",
     icon: LayoutDashboard,
   },
-  {
-    title: "Project",
-    url: "/dashboard/projects",
-    icon: Briefcase,
-  },
+
   {
     title: "My Tasks",
-    url: "/dashboard/tasks",
+    url: "/dashboard/my-tasks",
     icon: ListTodo,
+  },
+  {
+    title: "Projects",
+    url: "/dashboard/projects",
+    icon: Briefcase,
   },
   {
     title: "Members",

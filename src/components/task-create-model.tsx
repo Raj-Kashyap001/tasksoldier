@@ -83,17 +83,23 @@ export function TaskCreateModal({
     }
   }, [open]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!form.taskName.trim()) {
+      toast.error("Task title is required.");
+      return;
+    }
+
     setLoading(true);
     try {
       const payload: NewTask = {
-        taskName: form.taskName,
-        taskSummary: form.taskSummary,
+        taskName: form.taskName.trim(),
+        taskSummary: form.taskSummary.trim(),
         status: form.status as any,
         priority: form.priority as any,
         dueDate: date ? date.toISOString() : undefined,
         projectId,
-        // Send `undefined` to the backend if "Unassigned" is selected
         assignedUserId:
           form.assignedUserId === "unassigned"
             ? undefined
@@ -132,6 +138,7 @@ export function TaskCreateModal({
               <Input
                 id="taskName"
                 name="taskName"
+                required
                 placeholder="Task title"
                 value={form.taskName}
                 onChange={(e) =>
@@ -238,12 +245,7 @@ export function TaskCreateModal({
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                />
+                <Calendar mode="single" selected={date} onSelect={setDate} />
               </PopoverContent>
             </Popover>
           </div>
@@ -270,7 +272,6 @@ export function TaskCreateModal({
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Team Members</SelectLabel>
-                  {/* Changed value from "" to "unassigned" */}
                   <SelectItem value="unassigned">Unassigned</SelectItem>
                   {members.map((member) => (
                     <SelectItem key={member.userId} value={member.userId}>
@@ -283,7 +284,11 @@ export function TaskCreateModal({
           </div>
 
           {/* Submit */}
-          <Button onClick={handleSubmit} disabled={loading} className="w-full">
+          <Button
+            onClick={handleSubmit}
+            disabled={loading || !form.taskName.trim()}
+            className="w-full"
+          >
             {loading ? "Creating..." : "Create Task"}
           </Button>
         </div>

@@ -531,7 +531,7 @@ function SortableTaskCard({
           )}
           <div className="flex items-center gap-1">
             <User className="h-3 w-3" />
-            <span>Assigned</span>
+            <span>{task.assignedToId ? "Assigned" : "Unassigned"}</span>
           </div>
         </div>
       </CardContent>
@@ -641,7 +641,7 @@ function TaskRow({
         )}
         <div className="flex items-center gap-1">
           <User className="h-3 w-3" />
-          <span>Assigned</span>
+          <span>{task.assignedToId ? "Assigned" : "Unassigned"}</span>
         </div>
       </div>
 
@@ -1009,8 +1009,8 @@ export default function ProjectDetailPage() {
             <SortableTaskCard
               task={activeTask}
               isOverlay
-              onEdit={() => {}} // No-op for overlay
-              onDelete={() => {}} // No-op for overlay
+              onEdit={() => {}}
+              onDelete={() => {}}
             />
           </div>
         ) : null}
