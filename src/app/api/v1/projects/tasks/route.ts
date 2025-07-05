@@ -5,8 +5,6 @@ import { db } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/server/session";
 import { HttpStatus } from "@/lib/enums";
 
-import { taskSchema } from "@/lib/definitions";
-
 export async function GET(req: NextRequest) {
   const user = await getAuthUser();
 

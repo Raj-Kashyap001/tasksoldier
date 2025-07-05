@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProjectCreateModal } from "@/components/project-create-modal";
 import Link from "next/link";
 
+// TODO: SHOW LOADER WHEN A PROJECT IS LOADING
+
 // Using a professional, management-related icon
 import { BriefcaseBusiness } from "lucide-react";
 

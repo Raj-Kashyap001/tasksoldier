@@ -1,102 +1,133 @@
 import { db } from "@/lib/prisma";
 import { TaskPriority, TaskStatus } from "@/generated/prisma";
+import { getAuthUser } from "@/lib/server/session";
 import { NextRequest, NextResponse } from "next/server";
+import { HttpStatus } from "@/lib/enums";
 import z from "zod/v4";
 
+// GET task details with comments + assigned user
 export async function GET(
-  _: Request,
-  { params }: { params: { taskId: string } }
+  _: NextRequest,
+  context: { params: { taskId: string } }
 ) {
-  const task = await db.task.findUnique({
-    where: { id: params.taskId },
-    include: {
-      comments: true,
-      assignedTo: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-              profilePictureUrl: true,
+  const { taskId } = await context.params;
+
+  try {
+    const task = await db.task.findUnique({
+      where: { id: taskId },
+      include: {
+        comments: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            createdBy: {
+              select: {
+                id: true,
+                fullName: true,
+                profilePictureUrl: true,
+              },
+            },
+          },
+        },
+        assignedTo: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                profilePictureUrl: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  if (!task) {
-    return NextResponse.json({ message: "Task not found" }, { status: 404 });
+    if (!task) {
+      return NextResponse.json(
+        { error: "Task not found" },
+        { status: HttpStatus.NOT_FOUND }
+      );
+    }
+
+    return NextResponse.json({ task }, { status: HttpStatus.OK });
+  } catch (error) {
+    console.error("[TASK_GET_ERROR]", error);
+    return NextResponse.json(
+      { error: "Failed to fetch task" },
+      { status: HttpStatus.INTERNAL_SERVER_ERROR }
+    );
   }
-
-  return NextResponse.json({ task });
 }
 
+// PUT to update task
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { taskId: string } }
+  context: { params: { taskId: string } }
 ) {
+  const { taskId } = await context.params;
+
   const body = await req.json();
 
   const schema = z.object({
     taskName: z.string().min(1).optional(),
     taskSummary: z.string().optional(),
-    status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).optional(),
-    priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).optional(),
-    dueDate: z.string().datetime().optional().nullable(),
-    assignedToId: z.string().optional().nullable(),
+    status: z.enum(TaskStatus).optional(),
+    priority: z.enum(TaskPriority).optional(),
+    dueDate: z.iso.datetime().nullable().optional(),
+    assignedToId: z.string().nullable().optional(),
   });
 
   const parsed = schema.safeParse(body);
+
   if (!parsed.success) {
-    return new Response(
-      JSON.stringify({ error: "Invalid input", details: parsed.error.issues }),
-      { status: 400 }
+    return NextResponse.json(
+      { error: "Invalid input", details: parsed.error.issues },
+      { status: HttpStatus.BAD_REQUEST }
     );
   }
 
-  const { taskName, taskSummary, status, priority, dueDate, assignedToId } =
-    parsed.data;
-
-  const updateData: {
-    taskName?: string;
-    taskSummary?: string;
-    status?: TaskStatus;
-    priority?: TaskPriority;
-    dueDate?: string | null;
-    assignedToId?: string | null;
-  } = {};
-
-  if (taskName !== undefined) updateData.taskName = taskName;
-  if (taskSummary !== undefined) updateData.taskSummary = taskSummary;
-  if (status !== undefined) updateData.status = status;
-  if (priority !== undefined) updateData.priority = priority;
-  if (dueDate !== undefined) updateData.dueDate = dueDate;
-  if (assignedToId !== undefined) updateData.assignedToId = assignedToId;
-
   try {
-    const task = await db.task.update({
-      where: { id: params.taskId },
-      data: updateData,
+    const updated = await db.task.update({
+      where: { id: taskId },
+      data: parsed.data,
     });
 
-    return NextResponse.json({ task });
+    return NextResponse.json({ task: updated }, { status: HttpStatus.OK });
   } catch (err) {
-    console.error("Update failed:", err);
+    console.error("[TASK_UPDATE_ERROR]", err);
     return NextResponse.json(
       { error: "Update failed", detail: err },
-      { status: 500 }
+      { status: HttpStatus.INTERNAL_SERVER_ERROR }
     );
   }
 }
 
+// DELETE task (requires authentication)
 export async function DELETE(
   _: NextRequest,
-  { params }: { params: { taskId: string } }
+  context: { params: { taskId: string } }
 ) {
-  await db.task.delete({
-    where: { id: params.taskId },
-  });
+  const { taskId } = await context.params;
+  const user = await getAuthUser();
 
-  return new Response(null, { status: 204 });
+  if (!user) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: HttpStatus.UNAUTHORIZED }
+    );
+  }
+
+  try {
+    await db.task.delete({
+      where: { id: taskId },
+    });
+
+    return new Response(null, { status: HttpStatus.NO_CONTENT });
+  } catch (err) {
+    console.error("[TASK_DELETE_ERROR]", err);
+    return NextResponse.json(
+      { error: "Delete failed" },
+      { status: HttpStatus.INTERNAL_SERVER_ERROR }
+    );
+  }
 }

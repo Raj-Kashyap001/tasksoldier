@@ -276,13 +276,14 @@ export default function TaskDetailPage() {
               </p>
             ) : (
               task.comments.map((comment) => (
-                <div key={comment.id} className="flex gap-3">
+                <div key={comment.id} className="flex gap-3 group relative">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={comment.createdBy?.profilePictureUrl} />
                     <AvatarFallback>
                       {comment.createdBy?.fullName?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
+
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-sm">
@@ -294,6 +295,23 @@ export default function TaskDetailPage() {
                     </div>
                     <p className="text-sm">{comment.content}</p>
                   </div>
+
+                  <button
+                    onClick={async () => {
+                      try {
+                        await api.delete(
+                          `/projects/tasks/${taskId}/comments/${comment.id}`
+                        );
+                        await fetchTask();
+                        toast.success("Comment deleted");
+                      } catch {
+                        toast.error("Failed to delete comment");
+                      }
+                    }}
+                    className="absolute right-0 top-0 text-xs text-red-500 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    Delete
+                  </button>
                 </div>
               ))
             )}

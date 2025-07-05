@@ -8,4 +8,6 @@ Simple task manager
 
 [x] add option to create workspace
 
-[ ] make logout and accout page
+[x] make logout and accout page
+
+[ ] comments section
