@@ -16,8 +16,6 @@ export async function PUT(req: NextRequest) {
   const parsed = updateUserSchema.safeParse(json);
 
   if (!parsed.success) {
-    console.log("Zod error:", z.prettifyError(parsed.error));
-    console.log("Received JSON:", json);
     return ApiErrorResponse(HttpStatus.BAD_REQUEST, "Invalid input");
   }
 

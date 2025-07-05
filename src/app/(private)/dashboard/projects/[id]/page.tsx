@@ -142,14 +142,6 @@ function TaskEditModal({
       return;
     }
     try {
-      console.log("Updating task with:", {
-        taskName,
-        taskSummary: taskSummary || null,
-        priority,
-        status,
-        dueDate: dueDate ? dueDate.toISOString() : null,
-        assignedToId: assignedToId || null,
-      });
       const res = await api.put(`/projects/tasks/${task.id}`, {
         taskName,
         taskSummary: taskSummary || null,

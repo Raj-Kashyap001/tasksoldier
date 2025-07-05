@@ -44,7 +44,6 @@ export function SignupForm({
     const parsed = signupSchema.safeParse(formData);
     if (!parsed.success) {
       const validationError = z.prettifyError(parsed.error);
-      console.log(validationError);
       setErrorMessage(validationError || "Invalid input try again!");
       setLoading(false);
       return;

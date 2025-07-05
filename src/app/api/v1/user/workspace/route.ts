@@ -24,7 +24,6 @@ export async function PUT(req: NextRequest) {
     const parsed = updateWorkspaceSchema.safeParse(json);
 
     if (!parsed.success) {
-      console.log("Zod error:", z.prettifyError(parsed.error));
       return ApiErrorResponse(HttpStatus.BAD_REQUEST, "Invalid input");
     }
 

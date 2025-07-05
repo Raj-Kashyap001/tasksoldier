@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { api } from "@/lib/axios";
 import { PageHeader } from "@/components/page-header";
-import { StatsPieChart } from "@/components/piechart";
 import { DataTableMembers } from "@/components/members-table";
 import { RecentCommentsList } from "@/components/recent-comments-list";
 
@@ -148,10 +147,12 @@ export default function DashboardPage() {
                     <CardTitle>Task Distribution</CardTitle>
                   </CardHeader>
                   <CardContent className="flex-1 flex items-center justify-center">
-                    <StatsPieChart
+                    {/* <StatsPieChart
                       completed={stats?.completedTasks ?? 0}
                       inProgress={stats?.inProgressTasks ?? 0}
-                    />
+                    /> */}
+
+                    {/* A Pie chart here */}
                   </CardContent>
                 </Card>
               </div>

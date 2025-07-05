@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  context: { params: { taskId: string } }
+  context: { params: Promise<{ taskId: string }> }
 ) {
   const { taskId } = await context.params;
   const user = await getAuthUser();
+
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -39,6 +40,7 @@ export async function POST(
 
     return NextResponse.json({ comment });
   } catch (err) {
+    console.error("[COMMENT_CREATE_ERROR]", err);
     return NextResponse.json(
       { error: "Failed to add comment" },
       { status: 500 }
