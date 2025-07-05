@@ -6,7 +6,7 @@ export async function POST(
   req: NextRequest,
   context: { params: { taskId: string } }
 ) {
-  const { taskId } = await context.params; // ✅ await as per Next.js 15
+  const { taskId } = await context.params;
   const user = await getAuthUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

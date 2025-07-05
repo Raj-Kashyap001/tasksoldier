@@ -8,7 +8,7 @@ import z from "zod/v4";
 // GET task details with comments + assigned user
 export async function GET(
   _: NextRequest,
-  context: { params: { taskId: string } }
+  context: { params: Promise<{ taskId: string }> }
 ) {
   const { taskId } = await context.params;
 
@@ -62,7 +62,7 @@ export async function GET(
 // PUT to update task
 export async function PUT(
   req: NextRequest,
-  context: { params: { taskId: string } }
+  context: { params: Promise<{ taskId: string }> }
 ) {
   const { taskId } = await context.params;
 
@@ -73,7 +73,7 @@ export async function PUT(
     taskSummary: z.string().optional(),
     status: z.enum(TaskStatus).optional(),
     priority: z.enum(TaskPriority).optional(),
-    dueDate: z.iso.datetime().nullable().optional(),
+    dueDate: z.coerce.date().nullable().optional(),
     assignedToId: z.string().nullable().optional(),
   });
 
@@ -105,7 +105,7 @@ export async function PUT(
 // DELETE task (requires authentication)
 export async function DELETE(
   _: NextRequest,
-  context: { params: { taskId: string } }
+  context: { params: Promise<{ taskId: string }> } // ✅ Fix
 ) {
   const { taskId } = await context.params;
   const user = await getAuthUser();

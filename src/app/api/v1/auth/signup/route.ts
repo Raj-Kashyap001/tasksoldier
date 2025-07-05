@@ -6,7 +6,7 @@ import { signupSchema } from "@/lib/definitions";
 import { createSession } from "@/lib/server/session";
 import { HttpStatus } from "@/lib/enums";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const parsed = signupSchema.safeParse(body);
