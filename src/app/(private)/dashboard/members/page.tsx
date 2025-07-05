@@ -11,10 +11,13 @@ import { toast } from "sonner";
 
 interface Member {
   id: string;
-  name: string;
+  userId: string;
+  fullName: string;
   email: string;
+  profilePictureUrl?: string;
   role: "OWNER" | "ADMIN" | "MEMBER";
-  profileImage?: string;
+  accessLevel: "OWNER" | "MEMBER" | "VIEWER";
+  joinedAt: string;
 }
 
 export default function MembersPage() {
@@ -25,7 +28,7 @@ export default function MembersPage() {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const res = await api.get("/workspaces/members");
+        const res = await api.get("/workspace/members");
         setMembers(res.data.members);
       } catch (err) {
         toast.error("Failed to load members.");

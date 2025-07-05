@@ -149,3 +149,12 @@ model ActivityLog {
   timestamp  DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model Invite {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  workspaceId String
+  invitedById String
+  role        Role
+  createdAt   DateTime @default(now())
+}

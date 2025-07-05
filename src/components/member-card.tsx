@@ -8,10 +8,10 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface Props {
   member: {
-    name: string;
+    fullName: string;
     email: string;
     role: string;
-    profileImage?: string;
+    profilePictureUrl?: string;
   };
 }
 
@@ -20,11 +20,13 @@ export default function MemberCard({ member }: Props) {
     <Card>
       <CardHeader className="flex flex-row items-center gap-4">
         <Avatar>
-          <AvatarImage src={member.profileImage} />
-          <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+          <AvatarImage src={member.profilePictureUrl} />
+          <AvatarFallback>
+            {member.fullName?.charAt(0).toUpperCase() ?? "?"}
+          </AvatarFallback>
         </Avatar>
         <div className="space-y-1">
-          <CardTitle className="text-sm">{member.name}</CardTitle>
+          <CardTitle className="text-sm">{member.fullName}</CardTitle>
           <CardDescription>{member.email}</CardDescription>
           <span className="text-xs text-muted-foreground">{member.role}</span>
         </div>
