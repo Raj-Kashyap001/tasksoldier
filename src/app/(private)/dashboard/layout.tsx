@@ -45,10 +45,6 @@ export default async function DashboardLayout({
           <div className="flex gap-4 items-center">
             <ToggleTheme />
 
-            <span>
-              <Bell />
-            </span>
-
             <UserProfileDropdown user={user} />
           </div>
         </nav>

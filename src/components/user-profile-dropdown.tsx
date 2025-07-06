@@ -63,20 +63,24 @@ const UserProfileDropdown = ({ user }: UserProfileDropdownProps) => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <BadgeCheck />
-              <Link href="/dashboard/user-profile">Account</Link>
-            </DropdownMenuItem>
+            <Link href="/dashboard/user-profile">
+              <DropdownMenuItem>
+                <BadgeCheck />
+                Account
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuItem>
               <Bell />
               Notifications
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Users2 />
-              Members
-            </DropdownMenuItem>
+            <Link href={"/dashboard/members"}>
+              <DropdownMenuItem>
+                <Users2 />
+                Members
+              </DropdownMenuItem>
+            </Link>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
 

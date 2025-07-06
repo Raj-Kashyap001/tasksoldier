@@ -59,6 +59,7 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ workspaces }: DashboardSidebarProps) {
   const pathname = usePathname();
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>

@@ -4,10 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { ToggleTheme } from "./toggle-theme";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ToggleTheme } from "./toggle-theme";
+import { ThemeToggleMobile } from "./toggle-theme-mobile";
 
 const AppNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,14 +45,22 @@ const AppNavbar = () => {
             </SheetTrigger>
             <SheetContent side="right" className="w-[250px]">
               <div className="flex flex-col space-y-4 mt-4">
-                <ToggleTheme />
+                <ThemeToggleMobile />
                 <Link href="/auth/login" onClick={() => setIsOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start">
+                  <Button
+                    variant="link"
+                    className="w-full text-xl underline active:text-accent justify-start"
+                  >
                     Login
                   </Button>
                 </Link>
                 <Link href="/auth/signup" onClick={() => setIsOpen(false)}>
-                  <Button className="w-full justify-start">Sign Up</Button>
+                  <Button
+                    variant={"link"}
+                    className="w-full active:text-accent text-xl underline justify-start"
+                  >
+                    Sign Up
+                  </Button>
                 </Link>
               </div>
             </SheetContent>
