@@ -11,9 +11,12 @@ import {
 import AppNavbar from "@/components/app-navbar";
 import AppFooter from "@/components/app-footer";
 import { isAuthenticated } from "@/lib/server/auth";
+import { redirect } from "next/navigation";
 
 export default async function HomePage() {
   const loggedIn = await isAuthenticated();
+  if (loggedIn) redirect("/dashboard");
+
   return (
     <>
       <AppNavbar />
