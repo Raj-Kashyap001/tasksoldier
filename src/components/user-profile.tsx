@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { EditUserDialog } from "./edit-user-dialog";
+import { EditUserDialog } from "@/components/user-profile/edit-user-dialog";
 import { toast } from "sonner";
 import { api } from "@/lib/axios";
 
