@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TaskCreateModal } from "@/components/task-create-model";
+import { TaskCreateModal } from "@/components/tasks/task-create-model";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";

@@ -71,8 +71,6 @@ model Workspace {
   members      WorkspaceMember[]
   projects     Project[]
   currentUsers User[]            @relation("CurrentWorkspace")
-
-  @@unique([name])
 }
 
 model WorkspaceMember {

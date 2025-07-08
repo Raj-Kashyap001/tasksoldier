@@ -69,7 +69,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { TaskCreateModal } from "@/components/task-create-model";
 
 // === TYPE DEFINITIONS ===
 type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";

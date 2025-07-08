@@ -5,9 +5,9 @@ import { api } from "@/lib/axios";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Loader2, Plus } from "lucide-react";
-import InviteMemberModal from "@/components/invite-member-modal";
+import InviteMemberModal from "@/components/members/invite-member-modal";
 import { toast } from "sonner";
-import { MemberRow } from "@/components/member-row";
+import { MemberRow } from "@/components/members/member-row";
 import {
   Table,
   TableHeader,

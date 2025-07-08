@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { api } from "@/lib/axios";
 import { PageHeader } from "@/components/page-header";
-import { DataTableMembers } from "@/components/members-table";
-import { RecentCommentsList } from "@/components/recent-comments-list";
-import { TaskPieChart } from "@/components/task-pie-chart";
+import { DataTableMembers } from "@/components/members/members-table";
+import { RecentCommentsList } from "@/components/dashboard/recent-comments-list";
+import { TaskPieChart } from "@/components/dashboard/task-pie-chart";
 
 interface Stats {
   totalTasks: number;

@@ -21,7 +21,7 @@ import {
 
 import { usePathname } from "next/navigation";
 import { Workspace } from "@/generated/prisma";
-import { WorkspaceSwitcher } from "./workspace-swither";
+import { WorkspaceSwitcher } from "../workspace-swither";
 
 // Menu items.
 const items = [

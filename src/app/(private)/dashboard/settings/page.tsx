@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Bell, Trash2, Settings, UserCog } from "lucide-react";
-import EditWorkspaceNameForm from "@/components/edit-workspace-name-form";
+import EditWorkspaceNameForm from "@/components/workspace/edit-workspace-name-form";
 
 export default async function WorkspaceSettingsPage() {
   const user = await getAuthUser();

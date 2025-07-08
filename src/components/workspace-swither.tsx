@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/sidebar";
 
 import { Workspace } from "@/generated/prisma";
-import { CreateWorkspaceDialog } from "./create-workspace-dialog";
-import { toast } from "sonner"; // Using 'sonner' for toast notifications
+import { CreateWorkspaceDialog } from "./workspace/create-workspace-dialog";
+import { toast } from "sonner";
 
 interface WorkspaceSwitcherProps {
   workspaces: Workspace[];

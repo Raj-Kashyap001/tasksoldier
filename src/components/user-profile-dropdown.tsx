@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useState } from "react";
-import { LogoutDialog } from "./logout-overlay";
+import { LogoutDialog } from "./auth/logout-overlay";
 import Link from "next/link";
 
 interface UserProfileDropdownProps {

@@ -6,7 +6,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { api } from "@/lib/axios";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProjectCreateModal } from "@/components/project-create-modal";
+import { ProjectCreateModal } from "@/components/projects/project-create-modal";
 import Link from "next/link";
 
 // TODO: SHOW LOADER WHEN A PROJECT IS LOADING

@@ -1,4 +1,4 @@
-import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { ToggleTheme } from "@/components/toggle-theme";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import UserProfileDropdown from "@/components/user-profile-dropdown";
