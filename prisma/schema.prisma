@@ -29,7 +29,7 @@ enum Role {
 
 enum AccessLevel {
   OWNER
-  MEMBER // default
+  MEMBER
   VIEWER
 }
 

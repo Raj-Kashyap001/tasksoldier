@@ -33,7 +33,8 @@ export default function InviteMemberModal({ open, onClose }: Props) {
   const generateInvite = async () => {
     try {
       setGenerating(true);
-      const res = await api.post("/workspaces/invite", { role });
+      const res = await api.post("/workspace/invite", { role });
+
       setInviteLink(`${window.location.origin}/invite/${res.data.token}`);
     } catch {
       toast.error("Failed to generate invite link.");
