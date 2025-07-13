@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/page-header";
 import { DataTableMembers } from "@/components/members/members-table";
 import { RecentCommentsList } from "@/components/dashboard/recent-comments-list";
 import { TaskPieChart } from "@/components/dashboard/task-pie-chart";
+import { Role } from "@/generated/prisma";
 
 interface Stats {
   totalTasks: number;
@@ -24,7 +25,7 @@ export interface WorkspaceMember {
   fullName: string;
   email: string;
   profilePictureUrl?: string;
-  role: "OWNER" | "ADMIN" | "MEMBER";
+  role: Role;
   joinedAt: string;
 }
 

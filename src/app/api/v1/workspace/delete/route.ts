@@ -1,4 +1,5 @@
 // /api/v1/workspace/delete/route.ts
+import { Role } from "@/generated/prisma";
 import { db } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/server/session";
 import { NextRequest, NextResponse } from "next/server";
@@ -12,7 +13,7 @@ export async function DELETE(req: NextRequest) {
 
   // Optional: Check if user is OWNER before deleting
   const member = await db.workspaceMember.findFirst({
-    where: { userId: user.id, workspaceId, role: "OWNER" },
+    where: { userId: user.id, workspaceId, role: Role.ADMIN },
   });
 
   if (!member) {

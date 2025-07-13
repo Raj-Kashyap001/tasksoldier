@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/prisma";
 import { v4 as uuid } from "uuid";
 import { getAuthUser } from "@/lib/server/session";
+import { Role } from "@/generated/prisma";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
     const { role } = await req.json();
 
     // Validate role
-    if (!["OWNER", "ADMIN", "MEMBER"].includes(role)) {
+    if (!["VIEWER", "ADMIN", "MEMBER"].includes(role)) {
       return Response.json({ error: "Invalid role" }, { status: 400 });
     }
 
@@ -76,22 +77,22 @@ function checkInvitePermission(
   inviteeRole: string
 ): boolean {
   const roleHierarchy = {
-    OWNER: 3,
-    ADMIN: 2,
-    MEMBER: 1,
+    ADMIN: 3,
+    MEMBER: 2,
+    VIEWER: 1,
   };
 
   const inviterLevel = roleHierarchy[inviterRole as keyof typeof roleHierarchy];
   const inviteeLevel = roleHierarchy[inviteeRole as keyof typeof roleHierarchy];
 
-  // OWNER can invite anyone
-  if (inviterRole === "OWNER") return true;
+  // ADMIN can invite anyone
+  if (inviterRole === "ADMIN") return true;
 
-  // ADMIN can invite ADMIN and MEMBER, but not OWNER
-  if (inviterRole === "ADMIN") return inviteeRole !== "OWNER";
+  // MEMBER can invite Viewer and MEMBER, but not ADMIN
+  if (inviterRole === "MEMBER") return inviteeRole !== "ADMIN";
 
-  // MEMBER can only invite other MEMBERS
-  if (inviterRole === "MEMBER") return inviteeRole === "MEMBER";
+  // Viewer can only invite other Viewer
+  if (inviterRole === "VIEWER") return inviteeRole === "VIEWER";
 
   return false;
 }
