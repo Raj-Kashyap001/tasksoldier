@@ -38,29 +38,32 @@ export async function getUserWorkspaces() {
   try {
     const workspaces = await db.workspace.findMany({
       where: {
-        // Find workspaces where there is a member record
-        // associated with the current user's ID.
         members: {
           some: {
             userId: currentUser.id,
           },
         },
       },
-      // Select only the fields needed for the Workspace interface
       select: {
         id: true,
         name: true,
+        members: {
+          where: { userId: currentUser.id },
+          select: { role: true },
+        },
       },
-      // You might want to order them, e.g., by name or creation date
       orderBy: {
         name: "asc",
       },
     });
-    return workspaces;
+
+    return workspaces.map((ws) => ({
+      id: ws.id,
+      name: ws.name,
+      role: ws.members[0].role,
+    }));
   } catch (error) {
     console.error("Failed to fetch user workspaces:", error);
-    // Depending on your error handling strategy, you might re-throw the error
-    // or return an empty array. Returning an empty array is safer for UI display.
     return [];
   }
 }

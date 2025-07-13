@@ -7,6 +7,7 @@ import {
   GalleryVerticalEnd,
   Check,
   Loader2,
+  Settings,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -27,6 +28,7 @@ import { Workspace } from "@/generated/prisma";
 import { CreateWorkspaceDialog } from "./workspace/create-workspace-dialog";
 import { toast } from "sonner";
 import { api } from "@/lib/axios";
+import { redirect } from "next/navigation";
 
 interface WorkspaceSwitcherProps {
   workspaces: Workspace[];
@@ -39,10 +41,10 @@ export function WorkspaceSwitcher({
   const [workspaces, setWorkspaces] =
     React.useState<Workspace[]>(initialWorkspaces);
   const [currentWorkspace, setCurrentWorkspace] =
-    React.useState<Workspace | null>(null);
+    React.useState<Workspace | null>(initialWorkspaces[0] || null);
   const [openDialog, setOpenDialog] = React.useState(false);
   const [switching, setSwitching] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
+  const [initializing, setInitializing] = React.useState(true);
 
   React.useEffect(() => {
     const fetchCurrent = async () => {
@@ -51,16 +53,22 @@ export function WorkspaceSwitcher({
         const current = initialWorkspaces.find(
           (ws) => ws.id === data.currentWorkspaceId
         );
-        setCurrentWorkspace(current ?? initialWorkspaces[0]);
+        if (current) {
+          setCurrentWorkspace(current);
+        }
       } catch {
         toast.error("Unable to fetch current workspace.");
-        setCurrentWorkspace(initialWorkspaces[0]);
+        // Keep the default workspace (first one) if API fails
       } finally {
-        setLoading(false);
+        setInitializing(false);
       }
     };
 
-    fetchCurrent();
+    if (initialWorkspaces.length > 0) {
+      fetchCurrent();
+    } else {
+      setInitializing(false);
+    }
   }, [initialWorkspaces]);
 
   const handleWorkspaceCreated = (workspace: Workspace) => {
@@ -87,7 +95,13 @@ export function WorkspaceSwitcher({
     }
   };
 
-  if (loading || !currentWorkspace) return null;
+  const handleManageWorkspace = () => {
+    redirect("/dashboard/workspaces");
+  };
+
+  const displayWorkspace =
+    currentWorkspace ||
+    (initializing ? { name: "Fetching..." } : initialWorkspaces[0]);
 
   return (
     <>
@@ -105,7 +119,7 @@ export function WorkspaceSwitcher({
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
-                    {currentWorkspace.name}
+                    {displayWorkspace?.name || "Select Workspace"}
                   </span>
                   {switching && (
                     <span className="text-xs text-muted-foreground">
@@ -128,33 +142,46 @@ export function WorkspaceSwitcher({
               sideOffset={4}
             >
               <DropdownMenuLabel className="text-muted-foreground text-xs">
-                Available Workspaces
+                {workspaces.length > 0
+                  ? "Available Workspaces"
+                  : "No Workspaces"}
               </DropdownMenuLabel>
 
-              {workspaces.map((ws, index) => (
-                <DropdownMenuItem
-                  key={ws.id}
-                  onClick={() => handleWorkspaceSwitch(ws)}
-                  className="gap-2 p-2 relative"
-                  disabled={switching || currentWorkspace.id === ws.id}
-                >
-                  <div className="flex size-6 items-center justify-center rounded-md border">
-                    <GalleryVerticalEnd className="size-3.5 shrink-0" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span>{ws.name}</span>
-                    {currentWorkspace.id === ws.id && (
-                      <span className="text-xs text-muted-foreground">
-                        Current
-                      </span>
+              {workspaces.length > 0 ? (
+                workspaces.map((ws, index) => (
+                  <DropdownMenuItem
+                    key={ws.id}
+                    onClick={() => handleWorkspaceSwitch(ws)}
+                    className="gap-2 p-2 relative"
+                    disabled={switching || currentWorkspace?.id === ws.id}
+                  >
+                    <div className="flex size-6 items-center justify-center rounded-md border">
+                      <GalleryVerticalEnd className="size-3.5 shrink-0" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span>{ws.name}</span>
+                      {currentWorkspace?.id === ws.id && (
+                        <span className="text-xs text-muted-foreground">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    {currentWorkspace?.id === ws.id && (
+                      <Check className="ml-auto size-4 text-green-500" />
                     )}
+                    <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <DropdownMenuItem disabled className="gap-2 p-2">
+                  <div className="flex size-6 items-center justify-center rounded-md border">
+                    <GalleryVerticalEnd className="size-3.5 shrink-0 opacity-50" />
                   </div>
-                  {currentWorkspace.id === ws.id && (
-                    <Check className="ml-auto size-4 text-green-500" />
-                  )}
-                  <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                  <div className="text-muted-foreground">
+                    No workspaces available
+                  </div>
                 </DropdownMenuItem>
-              ))}
+              )}
 
               <DropdownMenuSeparator />
 
@@ -168,6 +195,19 @@ export function WorkspaceSwitcher({
                 </div>
                 <div className="text-muted-foreground font-medium">
                   Create Workspace
+                </div>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="gap-2 p-2"
+                onClick={handleManageWorkspace}
+                disabled={switching}
+              >
+                <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+                  <Settings className="size-4" />
+                </div>
+                <div className="text-muted-foreground font-medium">
+                  Manage Workspaces
                 </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
