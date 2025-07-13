@@ -60,13 +60,13 @@ export const columns: ColumnDef<WorkspaceMember>[] = [
       <div className="capitalize font-medium">{row.getValue("role")}</div>
     ),
   },
-  {
-    accessorKey: "accessLevel",
-    header: () => <div className="text-right">Access</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{row.getValue("accessLevel")}</div>
-    ),
-  },
+  // {
+  //   accessorKey: "accessLevel",
+  //   header: () => <div className="text-right">Access</div>,
+  //   cell: ({ row }) => (
+  //     <div className="text-right">{row.getValue("accessLevel")}</div>
+  //   ),
+  // },
 ];
 
 export function DataTableMembers({ data }: Props) {

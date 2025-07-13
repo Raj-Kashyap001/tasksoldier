@@ -1,5 +1,5 @@
+// Updated MemberRow component
 "use client";
-
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -9,31 +9,56 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, LogOut } from "lucide-react";
+import { canManageMembers } from "@/lib/permissions";
 
 interface Props {
   member: {
     id: string;
+    userId: string;
     fullName: string;
     email: string;
-    role: "OWNER" | "ADMIN" | "MEMBER";
+    role: "VIEWER" | "MEMBER" | "ADMIN";
     profilePictureUrl?: string;
-    accessLevel: "OWNER" | "MEMBER" | "VIEWER";
+    joinedAt: string;
   };
   currentUserId: string | null;
+  currentUserRole: "VIEWER" | "MEMBER" | "ADMIN";
   onRemove: (id: string) => void;
-  onChangeRole: (id: string, role: "ADMIN" | "MEMBER") => void;
+  onChangeRole: (id: string, role: "VIEWER" | "MEMBER" | "ADMIN") => void;
+  onLeaveWorkspace: () => void;
 }
 
 export function MemberRow({
   member,
   currentUserId,
+  currentUserRole,
   onRemove,
   onChangeRole,
+  onLeaveWorkspace,
 }: Props) {
-  const isSelf = member.id === currentUserId;
-  const isOwner = member.role === "OWNER";
+  const isSelf = member.userId === currentUserId;
+  const canManage = canManageMembers(currentUserRole);
+
+  // Don't allow changing admin role if current user is not admin
+  // Don't allow changing your own role
+  const canChangeRole = canManage && !isSelf;
+  const canRemoveMember = canManage && !isSelf;
+
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case "ADMIN":
+        return "default";
+      case "MEMBER":
+        return "secondary";
+      case "VIEWER":
+        return "outline";
+      default:
+        return "outline";
+    }
+  };
 
   return (
     <TableRow>
@@ -45,50 +70,76 @@ export function MemberRow({
               {member.fullName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <span className="font-medium">{member.fullName}</span>
+          <div>
+            <span className="font-medium">{member.fullName}</span>
+            {isSelf && (
+              <span className="text-xs text-muted-foreground ml-2">(You)</span>
+            )}
+          </div>
         </div>
       </TableCell>
       <TableCell className="text-sm text-muted-foreground">
         {member.email}
       </TableCell>
       <TableCell>
-        <Badge variant="outline">{member.role}</Badge>
+        <Badge variant={getRoleBadgeVariant(member.role)}>{member.role}</Badge>
       </TableCell>
-      <TableCell>
-        <Badge>{member.accessLevel}</Badge>
+      <TableCell className="text-sm text-muted-foreground">
+        {new Date(member.joinedAt).toLocaleDateString()}
       </TableCell>
       <TableCell className="text-right">
-        {isSelf || isOwner ? (
-          <Badge variant="secondary" className="text-xs">
-            {isOwner ? "Owner" : "You"}
-          </Badge>
-        ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost">
-                <MoreVertical className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" variant="ghost">
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {isSelf ? (
               <DropdownMenuItem
-                onClick={() => onChangeRole(member.id, "ADMIN")}
-              >
-                Make Admin
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onChangeRole(member.id, "MEMBER")}
-              >
-                Make Member
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onRemove(member.id)}
+                onClick={onLeaveWorkspace}
                 className="text-red-600"
               >
-                Remove Member
+                <LogOut className="w-4 h-4 mr-2" />
+                Leave Workspace
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+            ) : (
+              <>
+                {canChangeRole && (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => onChangeRole(member.id, "ADMIN")}
+                      disabled={member.role === "ADMIN"}
+                    >
+                      Make Admin
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => onChangeRole(member.id, "MEMBER")}
+                      disabled={member.role === "MEMBER"}
+                    >
+                      Make Member
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => onChangeRole(member.id, "VIEWER")}
+                      disabled={member.role === "VIEWER"}
+                    >
+                      Make Viewer
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                {canRemoveMember && (
+                  <DropdownMenuItem
+                    onClick={() => onRemove(member.id)}
+                    className="text-red-600"
+                  >
+                    Remove Member
+                  </DropdownMenuItem>
+                )}
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </TableCell>
     </TableRow>
   );

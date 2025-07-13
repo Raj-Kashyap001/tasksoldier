@@ -25,7 +25,6 @@ export interface WorkspaceMember {
   email: string;
   profilePictureUrl?: string;
   role: "OWNER" | "ADMIN" | "MEMBER";
-  accessLevel: "OWNER" | "MEMBER" | "VIEWER";
   joinedAt: string;
 }
 

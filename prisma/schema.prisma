@@ -22,15 +22,9 @@ enum TaskPriority {
 }
 
 enum Role {
-  OWNER
-  ADMIN
-  MEMBER
-}
-
-enum AccessLevel {
-  OWNER
-  MEMBER // default
-  VIEWER
+  VIEWER // Can view and comment on tasks
+  MEMBER // Can create tasks and projects + viewer permissions
+  ADMIN // Can do everything + manage members
 }
 
 model User {
@@ -74,15 +68,14 @@ model Workspace {
 }
 
 model WorkspaceMember {
-  id          String      @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   workspaceId String
-  inviteCode  String      @default(uuid())
-  role        Role
-  accessLevel AccessLevel @default(MEMBER)
-  joinedAt    DateTime    @default(now())
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviteCode  String    @default(uuid())
+  role        Role      @default(MEMBER)
+  joinedAt    DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   Task        Task[]
 
   @@unique([userId, workspaceId])

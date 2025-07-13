@@ -79,7 +79,6 @@ export async function getAuthUser() {
             select: {
               id: true,
               role: true,
-              accessLevel: true,
               workspace: {
                 select: {
                   name: true,

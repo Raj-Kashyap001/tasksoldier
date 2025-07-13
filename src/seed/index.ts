@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/generated/prisma";
+import { PrismaClient, Role } from "@/generated/prisma";
 import { hash } from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -71,32 +71,27 @@ async function main() {
       {
         userId: user1.id,
         workspaceId: workspace1.id,
-        role: "OWNER",
-        accessLevel: "OWNER",
+        role: Role.ADMIN,
       },
       {
         userId: user2.id,
         workspaceId: workspace1.id,
-        role: "ADMIN",
-        accessLevel: "MEMBER",
+        role: Role.MEMBER,
       },
       {
         userId: user3.id,
         workspaceId: workspace1.id,
-        role: "MEMBER",
-        accessLevel: "VIEWER",
+        role: Role.VIEWER,
       },
       {
         userId: user4.id,
         workspaceId: workspace2.id,
-        role: "OWNER",
-        accessLevel: "OWNER",
+        role: Role.ADMIN,
       },
       {
         userId: user1.id,
         workspaceId: workspace2.id,
-        role: "MEMBER",
-        accessLevel: "MEMBER",
+        role: Role.MEMBER,
       },
     ],
   });

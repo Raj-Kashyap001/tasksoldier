@@ -7,6 +7,8 @@ import { api } from "@/lib/axios";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProjectCreateModal } from "@/components/projects/project-create-modal";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
+
 import Link from "next/link";
 
 // TODO: SHOW LOADER WHEN A PROJECT IS LOADING
@@ -24,6 +26,9 @@ interface Project {
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [open, setOpen] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState<
+    "VIEWER" | "MEMBER" | "ADMIN" | null
+  >(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,6 +37,11 @@ export default function ProjectsPage() {
       .then((res) => setProjects(res.data.projects))
       .catch(() => setProjects([]))
       .finally(() => setLoading(false));
+
+    api
+      .get("/user/me")
+      .then((res) => setCurrentUserRole(res.data.role))
+      .catch(() => setCurrentUserRole(null));
   }, []);
 
   return (
@@ -41,10 +51,15 @@ export default function ProjectsPage() {
           title="My Projects"
           description="Manage all your active and archived projects."
         />
-        <Button onClick={() => setOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          <span className="hidden md:block md:pl-2">Create New Project</span>
-        </Button>
+        {currentUserRole &&
+          hasPermission(currentUserRole, PERMISSIONS.CREATE_PROJECTS) && (
+            <Button onClick={() => setOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              <span className="hidden md:block md:pl-2">
+                Create New Project
+              </span>
+            </Button>
+          )}
       </div>
 
       {/* --- */}
@@ -104,11 +119,14 @@ export default function ProjectsPage() {
 
       {/* --- */}
 
-      <ProjectCreateModal
-        open={open}
-        onOpenChange={setOpen}
-        onProjectCreated={(p) => setProjects([p, ...projects])}
-      />
+      {currentUserRole &&
+        hasPermission(currentUserRole, PERMISSIONS.CREATE_PROJECTS) && (
+          <ProjectCreateModal
+            open={open}
+            onOpenChange={setOpen}
+            onProjectCreated={(p) => setProjects([p, ...projects])}
+          />
+        )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { AccessLevel, Role, Workspace } from "@/generated/prisma";
+import { Role } from "@/generated/prisma";
 import { db } from "../prisma";
 import { getAuthUser } from "./session";
 
@@ -10,8 +10,7 @@ export async function createWorkspace(userId: string, workspaceName: string) {
         members: {
           create: {
             userId,
-            role: Role.OWNER,
-            accessLevel: AccessLevel.OWNER,
+            role: Role.ADMIN,
           },
         },
       },

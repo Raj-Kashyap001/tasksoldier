@@ -100,7 +100,6 @@ export async function POST(
         userId: currentUser.id,
         workspaceId: invite.workspaceId,
         role: invite.role as any,
-        accessLevel: invite.role === "OWNER" ? "OWNER" : "MEMBER",
       },
     });
 

@@ -25,7 +25,7 @@ export default async function WorkspaceSettingsPage() {
     include: {
       members: {
         where: { userId: user.id },
-        select: { role: true, accessLevel: true },
+        select: { role: true },
       },
     },
   });
@@ -58,13 +58,6 @@ export default async function WorkspaceSettingsPage() {
               workspaceId={workspace.id}
               currentName={workspace.name}
             />
-          </div>
-
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm text-muted-foreground">Your Access Level</p>
-              <Badge variant="secondary">{userAccess.accessLevel}</Badge>
-            </div>
           </div>
         </CardContent>
       </Card>

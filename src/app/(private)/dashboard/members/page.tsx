@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { api } from "@/lib/axios";
 import { PageHeader } from "@/components/page-header";
@@ -15,6 +14,17 @@ import {
   TableHead,
   TableBody,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { canInviteMembers } from "@/lib/permissions";
 
 interface Member {
   id: string;
@@ -22,22 +32,32 @@ interface Member {
   fullName: string;
   email: string;
   profilePictureUrl?: string;
-  role: "OWNER" | "ADMIN" | "MEMBER";
-  accessLevel: "OWNER" | "MEMBER" | "VIEWER";
+  role: "VIEWER" | "MEMBER" | "ADMIN";
   joinedAt: string;
+}
+
+interface CurrentUser {
+  id: string;
+  role: "VIEWER" | "MEMBER" | "ADMIN";
+  workspaceCount: number;
 }
 
 export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userRes = await api.get("/user/me");
-        setCurrentUserId(userRes.data.id);
+        setCurrentUser({
+          id: userRes.data.id,
+          role: userRes.data.role,
+          workspaceCount: userRes.data.workspaceCount,
+        });
 
         const memberRes = await api.get("/workspace/members");
         setMembers(memberRes.data.members);
@@ -47,7 +67,6 @@ export default function MembersPage() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -63,20 +82,37 @@ export default function MembersPage() {
 
   const handleChangeRole = async (
     memberId: string,
-    newRole: "ADMIN" | "MEMBER"
+    newRole: "VIEWER" | "MEMBER" | "ADMIN"
   ) => {
     try {
       await api.patch("/workspace/members/role", { memberId, newRole });
       toast.success("Role updated");
       setMembers((prev) =>
-        prev.map((m) =>
-          m.id === memberId ? { ...m, role: newRole as Member["role"] } : m
-        )
+        prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m))
       );
     } catch {
       toast.error("Failed to update role.");
     }
   };
+
+  const handleLeaveWorkspace = async () => {
+    try {
+      await api.post("/workspace/leave");
+      toast.success("Left workspace");
+      // Redirect to dashboard or workspace selection
+      window.location.href = "/dashboard";
+    } catch {
+      toast.error("Failed to leave workspace.");
+    }
+  };
+
+  if (!currentUser) {
+    return (
+      <div className="flex items-center justify-center h-32">
+        <Loader2 className="w-5 h-5 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -85,10 +121,12 @@ export default function MembersPage() {
         description="Manage your team's access and roles"
       />
 
-      <Button onClick={() => setModalOpen(true)}>
-        <Plus className="h-4 w-4 mr-2" />
-        Invite Member
-      </Button>
+      {canInviteMembers(currentUser.role) && (
+        <Button onClick={() => setModalOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Invite Member
+        </Button>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center h-32">
@@ -102,7 +140,7 @@ export default function MembersPage() {
                 <TableHead>User</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Access Level</TableHead>
+                <TableHead>Joined</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -111,9 +149,11 @@ export default function MembersPage() {
                 <MemberRow
                   key={member.id}
                   member={member}
-                  currentUserId={currentUserId}
+                  currentUserId={currentUser.id}
+                  currentUserRole={currentUser.role}
                   onRemove={handleRemove}
                   onChangeRole={handleChangeRole}
+                  onLeaveWorkspace={() => setLeaveDialogOpen(true)}
                 />
               ))}
             </TableBody>
@@ -122,6 +162,83 @@ export default function MembersPage() {
       )}
 
       <InviteMemberModal open={modalOpen} onClose={() => setModalOpen(false)} />
+
+      <AlertDialog open={leaveDialogOpen} onOpenChange={setLeaveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Leave Workspace</AlertDialogTitle>
+            <AlertDialogDescription>
+              {currentUser.workspaceCount <= 1 ? (
+                <span className="text-red-600 font-medium">
+                  You cannot leave your only workspace. Please join or create
+                  another workspace first.
+                </span>
+              ) : (
+                <>
+                  Are you sure you want to leave this workspace? You’ll lose
+                  access to all its projects and tasks.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+            <AlertDialogAction
+              onClick={handleLeaveWorkspace}
+              className="bg-red-400 hover:bg-red-500"
+              disabled={currentUser.workspaceCount <= 1}
+            >
+              Leave Workspace
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+
+// Updated invite system to use new roles
+export function getAvailableRoles(currentUserRole: string) {
+  const roles = [
+    {
+      value: "VIEWER",
+      label: "Viewer",
+      description: "Can view and comment on tasks",
+    },
+    {
+      value: "MEMBER",
+      label: "Member",
+      description: "Can create tasks and projects",
+    },
+    {
+      value: "ADMIN",
+      label: "Admin",
+      description: "Can manage members and workspace",
+    },
+  ];
+
+  // Only admins can invite other admins
+  if (currentUserRole !== "ADMIN") {
+    return roles.filter((r) => r.value !== "ADMIN");
+  }
+
+  return roles;
+}
+
+// Helper function to check invite permissions in invite system
+function checkInvitePermission(
+  inviterRole: string,
+  inviteeRole: string
+): boolean {
+  // Only admins can invite members
+  if (inviterRole !== "ADMIN") {
+    return false;
+  }
+
+  // Valid roles
+  return ["VIEWER", "MEMBER", "ADMIN"].includes(inviteeRole);
+}
+
+// -----------------------------------------------------------

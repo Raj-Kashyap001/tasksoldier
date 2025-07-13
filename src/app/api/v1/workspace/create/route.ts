@@ -3,6 +3,7 @@ import { db } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/server/session";
 import { NextRequest, NextResponse } from "next/server";
 import { HttpStatus } from "@/lib/enums";
+import { Role } from "@/generated/prisma";
 
 export async function POST(req: NextRequest) {
   const user = await getAuthUser();
@@ -18,8 +19,7 @@ export async function POST(req: NextRequest) {
       members: {
         create: {
           userId: user.id,
-          role: "OWNER",
-          accessLevel: "OWNER",
+          role: Role.ADMIN,
         },
       },
     },

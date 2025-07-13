@@ -30,7 +30,6 @@ export async function GET() {
       select: {
         id: true,
         role: true,
-        accessLevel: true,
         joinedAt: true,
         user: {
           select: {
@@ -53,7 +52,6 @@ export async function GET() {
       email: m.user.email,
       profilePictureUrl: m.user.profilePictureUrl,
       role: m.role,
-      accessLevel: m.accessLevel,
       joinedAt: m.joinedAt,
     }));
 
