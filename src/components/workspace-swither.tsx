@@ -23,6 +23,7 @@ import {
 import { Workspace } from "@/generated/prisma";
 import { CreateWorkspaceDialog } from "./workspace/create-workspace-dialog";
 import { toast } from "sonner";
+import { api } from "@/lib/axios"; // Use your custom axios instance
 
 interface WorkspaceSwitcherProps {
   workspaces: Workspace[];
@@ -38,6 +39,7 @@ export function WorkspaceSwitcher({
     initialWorkspaces[0]
   );
   const [openDialog, setOpenDialog] = React.useState(false);
+  const [switching, setSwitching] = React.useState(false);
 
   const handleWorkspaceCreated = (workspace: Workspace) => {
     setWorkspaces((prev) => [...prev, workspace]);
@@ -46,24 +48,40 @@ export function WorkspaceSwitcher({
   };
 
   const handleWorkspaceSwitch = async (workspace: Workspace) => {
+    // Don't switch if it's the same workspace
+    if (currentWorkspace.id === workspace.id) {
+      return;
+    }
+
     try {
-      const response = await fetch("/api/v1/user/workspace", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ workspaceId: workspace.id }),
+      setSwitching(true);
+
+      // Use your custom axios instance instead of fetch
+      const response = await api.put("/user/workspace", {
+        workspaceId: workspace.id,
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to switch workspace");
-      }
+      if (response.status === 200) {
+        setCurrentWorkspace(workspace);
+        toast.success(`Switched to ${workspace.name}`);
 
-      setCurrentWorkspace(workspace);
-      toast.success(`Switched to ${workspace.name}`);
-    } catch (error) {
+        // Optional: Force a page refresh or router refresh to update the UI
+        window.location.reload();
+        // or use Next.js router if you prefer
+        // router.refresh();
+      }
+    } catch (error: any) {
       console.error("Failed to switch workspace:", error);
-      toast.error("Failed to switch workspace. Please try again.");
+
+      // Better error handling with more specific messages
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to switch workspace. Please try again.";
+
+      toast.error(errorMessage);
+    } finally {
+      setSwitching(false);
     }
   };
 
@@ -78,6 +96,7 @@ export function WorkspaceSwitcher({
               <SidebarMenuButton
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                disabled={switching}
               >
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <GalleryVerticalEnd className="size-4" />
@@ -86,6 +105,11 @@ export function WorkspaceSwitcher({
                   <span className="truncate font-medium">
                     {currentWorkspace.name}
                   </span>
+                  {switching && (
+                    <span className="text-xs text-muted-foreground">
+                      Switching...
+                    </span>
+                  )}
                 </div>
                 <ChevronsUpDown className="ml-auto size-4 opacity-50" />
               </SidebarMenuButton>
@@ -106,11 +130,19 @@ export function WorkspaceSwitcher({
                   key={workspace.id}
                   onClick={() => handleWorkspaceSwitch(workspace)}
                   className="gap-2 p-2"
+                  disabled={switching || currentWorkspace.id === workspace.id}
                 >
                   <div className="flex size-6 items-center justify-center rounded-md border">
                     <GalleryVerticalEnd className="size-3.5 shrink-0" />
                   </div>
-                  {workspace.name}
+                  <div className="flex flex-col">
+                    <span>{workspace.name}</span>
+                    {currentWorkspace.id === workspace.id && (
+                      <span className="text-xs text-muted-foreground">
+                        Current
+                      </span>
+                    )}
+                  </div>
                   <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                 </DropdownMenuItem>
               ))}
@@ -120,6 +152,7 @@ export function WorkspaceSwitcher({
               <DropdownMenuItem
                 className="gap-2 p-2"
                 onClick={() => setOpenDialog(true)}
+                disabled={switching}
               >
                 <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                   <Plus className="size-4" />

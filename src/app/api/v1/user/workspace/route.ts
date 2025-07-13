@@ -8,7 +8,7 @@ import { updateUserCurrentWorkspace } from "@/lib/server/user";
 
 // Zod schema to validate the request body
 const updateWorkspaceSchema = z.object({
-  workspaceId: z.string().cuid(),
+  workspaceId: z.cuid(),
 });
 
 export async function PUT(req: NextRequest) {

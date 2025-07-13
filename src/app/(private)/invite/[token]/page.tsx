@@ -12,7 +12,7 @@ const InvitePage = async ({
   const loggedIn: boolean = await isAuthenticated();
 
   if (!loggedIn) {
-    redirect(`/login`);
+    redirect(`/auth/login`);
   }
 
   const currentUser = await getAuthUser();
