@@ -4,16 +4,16 @@ import { getAuthUser } from "@/lib/server/session";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
     const currentUser = await getAuthUser();
     if (!currentUser) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-
+    const { token } = await params;
     const invite = await db.invite.findUnique({
-      where: { token: params.token },
+      where: { token: token },
     });
 
     if (!invite) {
