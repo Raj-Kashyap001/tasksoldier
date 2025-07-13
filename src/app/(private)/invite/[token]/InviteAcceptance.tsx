@@ -113,7 +113,7 @@ export default function InviteAcceptance({ token, currentUser }: Props) {
 
         <div>
           <p className="text-sm text-gray-600">Role</p>
-          <Badge variant={invite.role === "OWNER" ? "default" : "secondary"}>
+          <Badge variant={invite.role === "ADMIN" ? "default" : "secondary"}>
             {invite.role}
           </Badge>
         </div>

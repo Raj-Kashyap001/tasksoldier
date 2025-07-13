@@ -2,7 +2,7 @@ import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { ToggleTheme } from "@/components/toggle-theme";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import UserProfileDropdown from "@/components/user-profile-dropdown";
-import { Workspace } from "@/generated/prisma/client";
+import { Role, Workspace } from "@/generated/prisma/client";
 import { isAuthenticated } from "@/lib/server/auth";
 import { getAuthUser } from "@/lib/server/session";
 import { getUserWorkspaces } from "@/lib/server/workspace";
@@ -29,7 +29,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
-      <DashboardSidebar workspaces={workspaces as Workspace[]} />
+      <DashboardSidebar workspaces={workspaces} />
       <div className="w-full">
         <nav className="flex w-full items-center justify-between sticky bg-primary-foreground top-0 h-16 px-4 shadow z-10">
           <div className="flex gap-2 items-center">

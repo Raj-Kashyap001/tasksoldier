@@ -47,6 +47,8 @@ export async function getUserWorkspaces() {
       select: {
         id: true,
         name: true,
+        updatedAt: true,
+        createdAt: true,
         members: {
           where: { userId: currentUser.id },
           select: { role: true },
@@ -61,6 +63,8 @@ export async function getUserWorkspaces() {
       id: ws.id,
       name: ws.name,
       role: ws.members[0].role,
+      createdAt: ws.createdAt,
+      updatedAt: ws.updatedAt,
     }));
   } catch (error) {
     console.error("Failed to fetch user workspaces:", error);

@@ -11,7 +11,7 @@ export async function DELETE(req: NextRequest) {
 
   const { workspaceId } = await req.json();
 
-  // Optional: Check if user is OWNER before deleting
+  // Optional: Check if user is ADMIN before deleting
   const member = await db.workspaceMember.findFirst({
     where: { userId: user.id, workspaceId, role: Role.ADMIN },
   });

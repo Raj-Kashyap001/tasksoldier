@@ -96,7 +96,7 @@ export function WorkspaceSwitcher({
   };
 
   const handleManageWorkspace = () => {
-    redirect("/dashboard/workspaces");
+    redirect("/dashboard/workspace");
   };
 
   const displayWorkspace =

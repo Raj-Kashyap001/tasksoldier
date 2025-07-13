@@ -42,7 +42,6 @@ export default function InviteMemberModal({ open, onClose }: Props) {
   const fetchCurrentUserRole = async () => {
     try {
       const response = await api.get("/user/me");
-      // You'll need to adjust this based on your user/me response structure
       setCurrentUserRole(response.data.role || "MEMBER");
     } catch (error) {
       console.error("Failed to fetch current user role:", error);
@@ -53,14 +52,14 @@ export default function InviteMemberModal({ open, onClose }: Props) {
     const roles = [
       { value: "MEMBER", label: "Member" },
       { value: "ADMIN", label: "Admin" },
-      { value: "OWNER", label: "Owner" },
+      { value: "VIEWER", label: "VIEWER" },
     ];
 
     // Filter roles based on current user's permissions
     if (currentUserRole === "MEMBER") {
       return roles.filter((r) => r.value === "MEMBER");
     } else if (currentUserRole === "ADMIN") {
-      return roles.filter((r) => r.value !== "OWNER");
+      return roles.filter((r) => r.value !== "VIWER");
     }
 
     return roles; // OWNER can invite anyone
