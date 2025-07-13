@@ -7,6 +7,8 @@ import { Loader2, Plus } from "lucide-react";
 import InviteMemberModal from "@/components/members/invite-member-modal";
 import { toast } from "sonner";
 import { MemberRow } from "@/components/members/member-row";
+import { getAvailableRoles, checkInvitePermission } from "@/lib/roles";
+
 import {
   Table,
   TableHeader,
@@ -197,48 +199,6 @@ export default function MembersPage() {
       </AlertDialog>
     </div>
   );
-}
-
-// Updated invite system to use new roles
-export function getAvailableRoles(currentUserRole: string) {
-  const roles = [
-    {
-      value: "VIEWER",
-      label: "Viewer",
-      description: "Can view and comment on tasks",
-    },
-    {
-      value: "MEMBER",
-      label: "Member",
-      description: "Can create tasks and projects",
-    },
-    {
-      value: "ADMIN",
-      label: "Admin",
-      description: "Can manage members and workspace",
-    },
-  ];
-
-  // Only admins can invite other admins
-  if (currentUserRole !== "ADMIN") {
-    return roles.filter((r) => r.value !== "ADMIN");
-  }
-
-  return roles;
-}
-
-// Helper function to check invite permissions in invite system
-function checkInvitePermission(
-  inviterRole: string,
-  inviteeRole: string
-): boolean {
-  // Only admins can invite members
-  if (inviterRole !== "ADMIN") {
-    return false;
-  }
-
-  // Valid roles
-  return ["VIEWER", "MEMBER", "ADMIN"].includes(inviteeRole);
 }
 
 // -----------------------------------------------------------
