@@ -1,7 +1,6 @@
 import { db } from "@/lib/prisma";
 import { generateSessionToken } from "../utils";
 import { cookies } from "next/headers";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export async function createSession(userId: string) {
   const token = generateSessionToken();
