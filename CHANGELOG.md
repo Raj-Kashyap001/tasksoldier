@@ -19,3 +19,9 @@ All notable changes to this project will be documented in this file.
 - Activity logs
 - User preferences and theme support
 - Audit logs and comment mentions
+
+## [0.2.2-alpha.2] - 2025-07-14
+
+- fixed ui bugs
+- inconsistent route error messages
+- some ux enhancements.

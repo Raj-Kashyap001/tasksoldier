@@ -26,7 +26,7 @@ import { WorkspaceSwitcher } from "../workspace-swither";
 // Menu items.
 const items = [
   {
-    title: "Dashboad",
+    title: "Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
   },
@@ -73,6 +73,7 @@ export function DashboardSidebar({ workspaces }: DashboardSidebarProps) {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
+                    title={item.title}
                     asChild
                     isActive={
                       pathname === item.url ||

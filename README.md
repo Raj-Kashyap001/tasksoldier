@@ -2,7 +2,7 @@
   <img src="https://ucarecdn.com/844d473f-fb1a-4547-b9fb-2ce1bb5d82be/logo.svg" alt="Tasksoldier Logo" width="120" />
 </p>
 
-# Tasksoldier v0.2.1-alpha.2
+# Tasksoldier v0.2.2-alpha.2
 
 > An alpha-stage collaborative task management platform built with **Next.js 15**, **Bun**, **Prisma**
 

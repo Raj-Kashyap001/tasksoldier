@@ -24,6 +24,7 @@ export function RecentCommentsList() {
         setError(null);
         const response = await api.get("/comments");
         setComments(response.data.comments);
+        console.log(comments);
       } catch (err) {
         console.error("Failed to fetch recent comments:", err);
         setError("Failed to load recent comments. Please try again.");
@@ -69,7 +70,7 @@ export function RecentCommentsList() {
       </CardHeader>
       <CardContent>
         {comments.length === 0 ? (
-          <p className="text-cente py-4">No recent comments found.</p>
+          <p className="text-center py-4">No recent comments found.</p>
         ) : (
           <div className="space-y-4">
             {comments.map((comment) => (
@@ -98,7 +99,7 @@ export function RecentCommentsList() {
                       commented on{" "}
                       {/* You might want to link to the specific task */}
                       <Link
-                        href={`/tasks/${comment.task.id}`}
+                        href={`/dashboard/projects/tasks/${comment.task.id}`}
                         className="font-medium text-blue-600 hover:underline"
                       >
                         {comment.task.taskName}
